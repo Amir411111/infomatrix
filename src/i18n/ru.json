@@ -1,0 +1,212 @@
+{
+  "tabs": {
+    "wardrobe": "Гардероб",
+    "builder": "Конструктор",
+    "recommendations": "Рекомендации",
+    "outfits": "Образы"
+  },
+
+  "wardrobe": {
+    "title": "Мой гардероб",
+    "add": "Добавить вещь",
+    "empty": "Ваш гардероб пуст. Добавьте первую вещь!",
+    "itemFallback": "Вещь",
+
+    "totalItems": "Всего вещей: {{count}}",
+
+    "category": {
+      "all": "Все",
+      "top": "Верх",
+      "bottom": "Низ",
+      "shoes": "Обувь"
+    }, 
+    "material": {
+      "cotton": "Хлопок",
+      "polyester": "Полиэстер",
+      "wool": "Шерсть",
+      "silk": "Шелк",
+      "linen": "Лен",
+      "synthetic": "Синтетика",
+      "blend": "Смесь волокон",
+      "leather": "Кожа",
+      "suede": "Замша",
+      "denim": "Джинс",
+      "corduroy": "Вельвет"
+    },
+
+    "deleteConfirmTitle": "Удалить вещь?",
+    "deleteConfirmText": "Удалить «{{name}}» из категории «{{category}}»?",
+    "deleteConfirmWeb": "Удалить «{{name}}»?\n\nКатегория: {{category}}\n\nПодтвердите удаление.",
+
+    "clearCacheTitle": "Очистить кэш?",
+    "clearCacheText": "Локальные данные будут удалены",
+    "clearCacheShort": "Кэш",
+    "cacheCleared": "Кэш очищен",
+    "cacheClearFailed": "Не удалось очистить кэш"
+  },
+
+  "builder": {
+  "title": "Конструктор образов",
+  "selectItems": "Выберите вещи для создания образа",
+  "addOutfit": "Сохранить образ",
+  "clear": "Очистить все",
+  "preview": "Просмотр",
+
+  "saveOutfitTitle": "Сохранить образ",
+  "outfitName": "Название образа",
+  "outfitDescription": "Описание",
+  "outfitStyle": "Стиль",
+  "outfitCategory": "Категория",
+  "example": "Например: Летний casual",
+  
+  "yourOutfit": "Ваш образ",
+  "outfitComplete": "Образ готов!",
+
+  "clearOutfit": "Очистить образ?",
+  "clearMessage": "Все выбранные вещи будут сброшены",
+  "clearTitle": "Очистить образ",
+
+  "errorSaving": "Не удалось сохранить образ",
+  "noItemsInCategory": "Нет вещей в категории",
+
+  "top": "Верх",
+  "bottom": "Низ",
+  "shoes": "Обувь"
+},
+
+  "recommendations": {
+    "title": "AI-Рекомендации",
+    "subtitle": "Получите совет по выбору одежды на основе погоды",
+    "weather": "По погоде",
+    "occasion": "По случаю",
+    "reasonColdTop": "Холодно — выбираем теплую верхнюю одежду.",
+    "reasonCoolTop": "Прохладно — подойдет средняя верхняя одежда.",
+    "reasonMildTop": "Умеренная температура — легкая верхняя одежда.",
+    "reasonWarmTop": "Тепло — предпочитаем лёгкие верха.",
+    "reasonWaterproofTop": "Выбран верх с водозащитными свойствами.",
+    "reasonHotBottom": "Тепло — лёгкие брюки или шорты.",
+    "reasonColdBottom": "Очень прохладно — выбираем тёплые штаны.",
+    "reasonNormalBottom": "Подобраны подходящие брюки.",
+    "reasonRainShoes": "Дождь — выбираем закрытую/влагоустойчивую обувь.",
+    "reasonHotShoes": "Тепло — можно выбрать открытую обувь.",
+    "reasonNormalShoes": "Подобрана подходящая обувь.",
+    "reasonEmptyWardrobe": "В вашем гардеробе пока нет вещей. Добавьте одежду для получения рекомендаций.",
+    "reasonIncompleteOutfit": "Рекомендуется дополнить гардероб для более точных рекомендаций.",
+    "reasonPerfectOutfit": "Идеальный комплект для {{temperature}}°C{{rain}}.",
+
+    "loadingWeather": "Загрузка данных о погоде...",
+    "noRecommendations": "Рекомендации недоступны",
+
+    "weatherConditions": "Погодные условия",
+    "temperature": "Температура (°C)",
+    "isRaining": "Идет ли дождь?",
+    "getRecommendation": "Получить рекомендацию",
+
+    "errorGetting": "Не удалось получить рекомендацию",
+    "emptyWardrobe": "Ваш гардероб пуст. Добавьте одежду для получения рекомендаций.",
+    "errorAddItems": "Добавьте вещи в гардероб для получения рекомендаций",
+    "noOutfit": "Не удалось подобрать комплект. Добавьте больше вещей в гардероб.",
+    "recommendedOutfit": "Рекомендуемый образ",
+    "outfitSet": "Комплект:"
+    
+  },
+
+  "outfits": {
+    "title": "Мои образы",
+    "empty": "Образы не сохранены",
+    "saved": "сохраненных образов",
+
+    "viewOutfit": "Просмотр",
+    "deleteOutfit": "Удалить",
+    "createNew": "Создать новый образ",
+
+    "deleteConfirmTitle": "Удалить образ?",
+    "deleteConfirmMessage": "Вы уверены, что хотите удалить",
+    "deleteButton": "Удалить",
+
+    "noOutfits": "У вас еще нет сохраненных образов",
+    "noOutfitsFilter": "По этому фильтру нет образов",
+    "createSubtext": "Создавайте образы в конструкторе и сохраняйте их!",
+    "favorites": "Избранные"
+  },
+
+  "addItem": {
+    "title": "Добавить вещь",
+    "name": "Название вещи",
+    "category": "Категория",
+    "colorPlaceholder": "Введите цвет",
+    "size": "Размер",
+    "season": "Сезон",
+    "notes": "Заметки",
+    "color": "Цвет",
+
+
+    "save": "Сохранить вещь",
+    "cancel": "Отмена",
+
+    "selectMaterial": "Выберите материал...",
+    "customMaterialPlaceholder": "Введите свой материал...",
+
+    "removePhoto": "Удалить фото",
+    "camera": "Камера",
+    "gallery": "Галерея",
+
+    "namePlaceholder": "Например: Синяя рубашка",
+    "notesPlaceholder": "Дополнительная информация...",
+    "other": "Другое",
+
+    "success": "Вещь добавлена!",
+    "webCameraConfirm": "Нажмите ОК для снимка, ОТМЕНА для отказа",
+
+    "validation": {
+      "nameRequired": "Требуется название",
+      "categoryRequired": "Требуется категория",
+      "errorEmptyName": "Пожалуйста, введите название вещи",
+      "errorSelectPhoto": "Пожалуйста, выберите фото",
+      "errorOpenCamera": "Не удалось открыть камеру",
+      "errorOpenGallery": "Не удалось открыть галерею",
+      "errorSaveItem": "Не удалось сохранить вещь",
+      "unknownError": "Неизвестная ошибка"
+    }
+  },
+
+  "common": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "back": "Назад",
+    "loading": "Загрузка...",
+    "error": "Что-то пошло не так",
+    "success": "Успешно",
+    "confirm": "Подтвердить",
+
+    "season": "Сезон",
+    "material": "Материал",
+    "color": "Цвет",
+    "seasons": "Сезоны",
+
+    "spring": "Весна",
+    "summer": "Лето",
+    "autumn": "Осень",
+    "winter": "Зима",
+
+    "all": "Все",
+    "noDescription": "Нет описания",
+    "added": "Добавлена",
+
+    "edit": "Редактировать",
+    "editing": "Редактирование",
+    "description": "Описание",
+
+    "casual": "Casual",
+    "formal": "Формальный",
+    "sporty": "Спортивный",
+    "party": "Вечеринка",
+    "cotton": "Хлопок",
+    "polyester": "Полиэстер",
+    "wool": "Шерсть",
+    "silk": "Шелк",
+    "linen": "Лён",
+    "synthetic": "Синтетика"
+  }
+}

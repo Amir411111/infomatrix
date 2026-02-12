@@ -1,0 +1,210 @@
+{
+  "tabs": {
+    "wardrobe": "Wardrobe",
+    "builder": "Builder",
+    "recommendations": "Recommendations",
+    "outfits": "Outfits"
+  },
+
+  "wardrobe": {
+    "title": "My Wardrobe",
+    "add": "Add Item",
+    "empty": "Your wardrobe is empty. Add your first item!",
+    "itemFallback": "Item",
+
+    "totalItems": "Total items: {{count}}",
+
+    "category": {
+      "all": "All",
+      "top": "Tops",
+      "bottom": "Bottoms",
+      "shoes": "Shoes"
+    },
+    "material": {
+      "cotton": "Cotton",
+      "polyester": "Polyester",
+      "wool": "Wool",
+      "silk": "Silk",
+      "linen": "Linen",
+      "synthetic": "Synthetic",
+      "blend": "Blend",
+      "leather": "Leather",
+      "suede": "Suede",
+      "denim": "Denim",
+      "corduroy": "Corduroy"
+    },
+
+    "deleteConfirmTitle": "Delete item?",
+    "deleteConfirmText": "Are you sure you want to delete \"{{name}}\" from category \"{{category}}\"?",
+    "deleteConfirmWeb": "Delete \"{{name}}\"?\n\nCategory: {{category}}\n\nPlease confirm.",
+
+    "clearCacheTitle": "Clear cache?",
+    "clearCacheText": "Local data will be removed",
+    "clearCacheShort": "Cache",
+    "cacheCleared": "Cache cleared",
+    "cacheClearFailed": "Failed to clear cache"
+  },
+
+  "builder": {
+  "title": "Outfit Builder",
+  "selectItems": "Select items to create an outfit",
+  "addOutfit": "Save Outfit",
+  "clear": "Clear All",
+  "preview": "Preview",
+
+  "saveOutfitTitle": "Save Outfit",
+  "outfitName": "Outfit Name",
+  "outfitDescription": "Description",
+  "outfitStyle": "Style",
+  "outfitCategory": "Category",
+  "example": "For example: Summer casual",
+  
+  "yourOutfit": "Your Outfit",
+  "outfitComplete": "Outfit complete!",
+
+  "clearOutfit": "Clear outfit?",
+  "clearMessage": "All selected items will be reset",
+  "clearTitle": "Clear Outfit",
+
+  "errorSaving": "Failed to save outfit",
+  "noItemsInCategory": "No items in category",
+
+  "top": "Tops",
+  "bottom": "Bottoms",
+  "shoes": "Shoes"
+},
+
+  "recommendations": {
+    "title": "AI Recommendations",
+    "subtitle": "Get advice on choosing clothes based on weather",
+    "weather": "Weather-based",
+    "occasion": "By Occasion",
+    "reasonColdTop": "Cold — choose a warm top.",
+    "reasonCoolTop": "Cool — a medium-weight top works.",
+    "reasonMildTop": "Mild — a light top is suitable.",
+    "reasonWarmTop": "Warm — prefer light tops.",
+    "reasonWaterproofTop": "Selected top has waterproof properties.",
+    "reasonHotBottom": "Warm — light pants or shorts.",
+    "reasonColdBottom": "Very cool — choose warm pants.",
+    "reasonNormalBottom": "Suitable pants selected.",
+    "reasonRainShoes": "Rain — choose closed/waterproof shoes.",
+    "reasonHotShoes": "Warm — open shoes are fine.",
+    "reasonNormalShoes": "Suitable shoes selected.",
+    "reasonEmptyWardrobe": "Your wardrobe is empty. Add clothes to get recommendations.",
+    "reasonIncompleteOutfit": "It is recommended to add more items to your wardrobe for better recommendations.",
+    "reasonPerfectOutfit": "Perfect outfit for {{temperature}}°C{{rain}}.",
+
+    "loadingWeather": "Loading weather data...",
+    "noRecommendations": "No recommendations available",
+
+    "weatherConditions": "Weather Conditions",
+    "temperature": "Temperature (°C)",
+    "isRaining": "Is it raining?",
+    "getRecommendation": "Get Recommendation",
+
+    "errorGetting": "Failed to get recommendation",
+    "emptyWardrobe": "Your wardrobe is empty. Add clothes to get recommendations.",
+    "errorAddItems": "Add items to your wardrobe to get recommendations",
+    "noOutfit": "Unable to create an outfit. Add more items to your wardrobe.",
+    "recommendedOutfit": "Recommended Outfit",
+    "outfitSet": "Outfit:"
+  },
+
+  "outfits": {
+    "title": "My Outfits",
+    "empty": "No outfits saved yet",
+    "saved": "saved outfits",
+
+    "viewOutfit": "View",
+    "deleteOutfit": "Delete",
+    "createNew": "Create New Outfit",
+
+    "deleteConfirmTitle": "Delete Outfit?",
+    "deleteConfirmMessage": "Are you sure you want to delete",
+    "deleteButton": "Delete",
+
+    "noOutfits": "You don't have any saved outfits yet",
+    "noOutfitsFilter": "No outfits match this filter",
+    "createSubtext": "Create outfits in the builder and save them!",
+    "favorites": "Favorites"
+  },
+
+  "addItem": {
+    "title": "Add Item",
+    "name": "Item Name",
+    "category": "Category",
+    "colorPlaceholder": "Enter the color",
+    "size": "Size",
+    "season": "Season",
+    "notes": "Notes",
+    "color": "Color",
+
+    "save": "Save Item",
+    "cancel": "Cancel",
+
+    "selectMaterial": "Select material...",
+    "customMaterialPlaceholder": "Enter custom material...",
+
+    "removePhoto": "Remove Photo",
+    "camera": "Camera",
+    "gallery": "Gallery",
+
+    "namePlaceholder": "For example: Blue shirt",
+    "notesPlaceholder": "Additional information...",
+    "other": "Other",
+
+    "success": "Item added!",
+    "webCameraConfirm": "Press OK to take a photo, Cancel to reject",
+
+    "validation": {
+      "nameRequired": "Name is required",
+      "categoryRequired": "Category is required",
+      "errorEmptyName": "Please enter item name",
+      "errorSelectPhoto": "Please select a photo",
+      "errorOpenCamera": "Failed to open camera",
+      "errorOpenGallery": "Failed to open gallery",
+      "errorSaveItem": "Failed to save item",
+      "unknownError": "Unknown error"
+    }
+  },
+
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "back": "Back",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success",
+    "confirm": "Confirm",
+
+    "season": "Season",
+    "material": "Material",
+    "color": "Color",
+    "seasons": "Seasons",
+
+    "spring": "Spring",
+    "summer": "Summer",
+    "autumn": "Autumn",
+    "winter": "Winter",
+
+    "all": "All",
+    "noDescription": "No description",
+    "added": "Added",
+
+    "edit": "Edit",
+    "editing": "Editing",
+    "description": "Description",
+
+    "casual": "Casual",
+    "formal": "Formal",
+    "sporty": "Sporty",
+    "party": "Party",
+    "cotton": "Cotton",
+    "polyester": "Polyester",
+    "wool": "Wool",
+    "silk": "Silk",
+    "linen": "Linen",
+    "synthetic": "Synthetic"
+  }
+}

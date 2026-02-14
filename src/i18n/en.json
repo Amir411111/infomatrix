@@ -55,6 +55,7 @@
   "saveOutfitTitle": "Save Outfit",
   "outfitName": "Outfit Name",
   "outfitDescription": "Description",
+  "outfitDescriptionPlaceholder": "Add a short description",
   "outfitStyle": "Style",
   "outfitCategory": "Category",
   "example": "For example: Summer casual",
@@ -75,7 +76,7 @@
 },
 
   "recommendations": {
-    "title": "AI Recommendations",
+    "title": "Recommendations",
     "subtitle": "Get advice on choosing clothes based on weather",
     "weather": "Weather-based",
     "occasion": "By Occasion",
@@ -170,6 +171,7 @@
 
   "common": {
     "save": "Save",
+    "close": "Close",
     "cancel": "Cancel",
     "delete": "Delete",
     "back": "Back",
@@ -189,6 +191,7 @@
     "winter": "Winter",
 
     "all": "All",
+    "notSpecified": "Not specified",
     "noDescription": "No description",
     "added": "Added",
 

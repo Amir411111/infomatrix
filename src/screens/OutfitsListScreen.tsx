@@ -13,6 +13,7 @@ import {
   Platform,
   ActivityIndicator,
   Modal,
+  TextInput,
 } from 'react-native';
 import { useOutfitStore } from '../store/outfitStore';
 import { Outfit } from '../types';
@@ -21,10 +22,14 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 export const OutfitsListScreen: React.FC = () => {
   const { t } = useTranslation();
-  const { outfits, loadOutfits, isLoading, deleteOutfit, toggleFavorite } = useOutfitStore();
+  const { outfits, loadOutfits, isLoading, deleteOutfit, toggleFavorite, updateOutfit } = useOutfitStore();
   const [selectedOutfit, setSelectedOutfit] = useState<Outfit | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'favorites' | 'style'>('all');
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  const [isEditingOutfit, setIsEditingOutfit] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editStyle, setEditStyle] = useState<string>('casual');
 
   useEffect(() => {
     loadOutfits();
@@ -52,17 +57,52 @@ export const OutfitsListScreen: React.FC = () => {
     }
   };
 
+  const openOutfitDetails = (outfit: Outfit) => {
+    setSelectedOutfit(outfit);
+    setIsEditingOutfit(false);
+    setEditName(outfit.name || '');
+    setEditDescription(outfit.description || '');
+    setEditStyle(outfit.style || 'casual');
+  };
+
+  const handleSaveOutfitEdit = async () => {
+    if (!selectedOutfit?._id) return;
+    if (!editName.trim()) {
+      Alert.alert(t('common.error'), t('builder.outfitName'));
+      return;
+    }
+
+    try {
+      const updated = await updateOutfit(selectedOutfit._id, {
+        name: editName.trim(),
+        description: editDescription.trim() || undefined,
+        style: editStyle,
+      });
+      setSelectedOutfit(updated as unknown as Outfit);
+      setIsEditingOutfit(false);
+      Alert.alert(t('common.success'), t('common.success'));
+    } catch {
+      Alert.alert(t('common.error'), t('builder.errorSaving'));
+    }
+  };
+
+  const getOutfitItemImage = (itemRef?: unknown): string | undefined => {
+    if (!itemRef || typeof itemRef === 'string') return undefined;
+    const value = itemRef as { imageBase64?: string; imageUri?: string };
+    return value.imageBase64 || value.imageUri;
+  };
+
   const renderOutfitCard = (outfit: Outfit) => (
-    <TouchableOpacity key={outfit._id} style={styles.outfitCard} onPress={() => setSelectedOutfit(outfit)}>
+    <TouchableOpacity key={outfit._id || outfit.name} style={styles.outfitCard} onPress={() => openOutfitDetails(outfit)}>
       <View style={styles.outfitImages}>
-        {outfit.topId?.imageBase64 && (
-          <Image source={{ uri: outfit.topId.imageBase64 }} style={styles.outfitItemImage} resizeMode="cover" />
+        {getOutfitItemImage(outfit.topId) && (
+          <Image source={{ uri: getOutfitItemImage(outfit.topId) }} style={styles.outfitItemImage} resizeMode="cover" />
         )}
-        {outfit.bottomId?.imageBase64 && (
-          <Image source={{ uri: outfit.bottomId.imageBase64 }} style={styles.outfitItemImage} resizeMode="cover" />
+        {getOutfitItemImage(outfit.bottomId) && (
+          <Image source={{ uri: getOutfitItemImage(outfit.bottomId) }} style={styles.outfitItemImage} resizeMode="cover" />
         )}
-        {outfit.shoesId?.imageBase64 && (
-          <Image source={{ uri: outfit.shoesId.imageBase64 }} style={styles.outfitItemImage} resizeMode="cover" />
+        {getOutfitItemImage(outfit.shoesId) && (
+          <Image source={{ uri: getOutfitItemImage(outfit.shoesId) }} style={styles.outfitItemImage} resizeMode="cover" />
         )}
       </View>
 
@@ -87,10 +127,13 @@ export const OutfitsListScreen: React.FC = () => {
       </View>
 
       <View style={styles.outfitActions}>
-        <TouchableOpacity onPress={() => toggleFavorite(outfit._id!)} style={styles.actionButton}>
+        <TouchableOpacity onPress={() => outfit._id && toggleFavorite(outfit._id)} style={styles.actionButton}>
           <Text style={styles.actionButtonText}>{outfit.isFavorite ? '❤️' : '🤍'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleDelete(outfit._id!, outfit.name)} style={styles.actionButton}>
+        <TouchableOpacity
+          onPress={() => outfit._id && handleDelete(outfit._id, outfit.name || t('outfits.title'))}
+          style={styles.actionButton}
+        >
           <Text style={styles.actionButtonText}>🗑️</Text>
         </TouchableOpacity>
       </View>
@@ -187,24 +230,78 @@ export const OutfitsListScreen: React.FC = () => {
         <Modal visible={true} transparent={true} animationType="slide" onRequestClose={() => setSelectedOutfit(null)}>
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>{selectedOutfit.name}</Text>
-              {selectedOutfit.description && <Text style={styles.modalDescription}>{selectedOutfit.description}</Text>}
+              {!isEditingOutfit ? (
+                <>
+                  <Text style={styles.modalTitle}>{selectedOutfit.name}</Text>
+                  {selectedOutfit.description && <Text style={styles.modalDescription}>{selectedOutfit.description}</Text>}
+                </>
+              ) : (
+                <>
+                  <Text style={styles.modalTitle}>{t('common.editing')}</Text>
+                  <TextInput
+                    style={styles.modalInput}
+                    value={editName}
+                    onChangeText={setEditName}
+                    placeholder={t('builder.outfitName')}
+                    placeholderTextColor="#9ca3af"
+                  />
+                  <TextInput
+                    style={[styles.modalInput, styles.modalInputMultiline]}
+                    value={editDescription}
+                    onChangeText={setEditDescription}
+                    placeholder={t('builder.outfitDescriptionPlaceholder')}
+                    placeholderTextColor="#9ca3af"
+                    multiline
+                    numberOfLines={3}
+                  />
+                  <View style={styles.editStyleRow}>
+                    {['casual', 'formal', 'sporty', 'party'].map((style) => (
+                      <TouchableOpacity
+                        key={style}
+                        onPress={() => setEditStyle(style)}
+                        style={[styles.editStyleButton, editStyle === style && styles.editStyleButtonActive]}
+                      >
+                        <Text style={[styles.editStyleButtonText, editStyle === style && styles.editStyleButtonTextActive]}>
+                          {t(`common.${style}`)}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </>
+              )}
 
               <View style={styles.modalImagesRow}>
-                {selectedOutfit.topId?.imageBase64 && (
-                  <Image source={{ uri: selectedOutfit.topId.imageBase64 }} style={styles.modalImage} />
+                {getOutfitItemImage(selectedOutfit.topId) && (
+                  <Image source={{ uri: getOutfitItemImage(selectedOutfit.topId) }} style={styles.modalImage} />
                 )}
-                {selectedOutfit.bottomId?.imageBase64 && (
-                  <Image source={{ uri: selectedOutfit.bottomId.imageBase64 }} style={styles.modalImage} />
+                {getOutfitItemImage(selectedOutfit.bottomId) && (
+                  <Image source={{ uri: getOutfitItemImage(selectedOutfit.bottomId) }} style={styles.modalImage} />
                 )}
-                {selectedOutfit.shoesId?.imageBase64 && (
-                  <Image source={{ uri: selectedOutfit.shoesId.imageBase64 }} style={styles.modalImage} />
+                {getOutfitItemImage(selectedOutfit.shoesId) && (
+                  <Image source={{ uri: getOutfitItemImage(selectedOutfit.shoesId) }} style={styles.modalImage} />
                 )}
               </View>
 
-              <TouchableOpacity onPress={() => setSelectedOutfit(null)} style={styles.modalCloseButton}>
-                <Text style={styles.modalCloseText}>{t('common.close') || 'Закрыть'}</Text>
-              </TouchableOpacity>
+              <View style={styles.modalButtonsRow}>
+                {!isEditingOutfit ? (
+                  <TouchableOpacity onPress={() => setIsEditingOutfit(true)} style={styles.modalSecondaryButton}>
+                    <Text style={styles.modalSecondaryButtonText}>{t('common.edit')}</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <>
+                    <TouchableOpacity onPress={() => setIsEditingOutfit(false)} style={styles.modalSecondaryButton}>
+                      <Text style={styles.modalSecondaryButtonText}>{t('common.cancel')}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleSaveOutfitEdit} style={styles.modalCloseButton}>
+                      <Text style={styles.modalCloseText}>{t('common.save')}</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+
+                <TouchableOpacity onPress={() => setSelectedOutfit(null)} style={styles.modalCloseButton}>
+                  <Text style={styles.modalCloseText}>{t('common.close')}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Modal>
@@ -410,6 +507,43 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     marginBottom: 12,
   },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: '#111827',
+    marginBottom: 10,
+  },
+  modalInputMultiline: {
+    minHeight: 84,
+    textAlignVertical: 'top',
+  },
+  editStyleRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 10,
+  },
+  editStyleButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#e5e7eb',
+  },
+  editStyleButtonActive: {
+    backgroundColor: '#3b82f6',
+  },
+  editStyleButtonText: {
+    color: '#374151',
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  editStyleButtonTextActive: {
+    color: '#fff',
+  },
   modalImagesRow: {
     flexDirection: 'row',
     gap: 8,
@@ -426,6 +560,22 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: '#3b82f6',
     borderRadius: 8,
+  },
+  modalButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  modalSecondaryButton: {
+    alignSelf: 'flex-end',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 8,
+  },
+  modalSecondaryButtonText: {
+    color: '#374151',
+    fontWeight: '600',
   },
   modalCloseText: {
     color: '#fff',

@@ -55,6 +55,7 @@
   "saveOutfitTitle": "Сохранить образ",
   "outfitName": "Название образа",
   "outfitDescription": "Описание",
+  "outfitDescriptionPlaceholder": "Добавьте краткое описание",
   "outfitStyle": "Стиль",
   "outfitCategory": "Категория",
   "example": "Например: Летний casual",
@@ -172,6 +173,7 @@
 
   "common": {
     "save": "Сохранить",
+    "close": "Закрыть",
     "cancel": "Отмена",
     "delete": "Удалить",
     "back": "Назад",
@@ -191,6 +193,7 @@
     "winter": "Зима",
 
     "all": "Все",
+    "notSpecified": "Не указано",
     "noDescription": "Нет описания",
     "added": "Добавлена",
 

@@ -14,8 +14,11 @@ import {
   StyleSheet,
   TextInput,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import { useWardrobeStore } from '../store/wardrobeStore';
 import { ClothingItem } from '../types';
 import { AddItemForm } from '../components/AddItemForm';
@@ -29,6 +32,7 @@ export const WardrobeScreen: React.FC = () => {
   const [isEditingFull, setIsEditingFull] = useState(false);
   const [editFormData, setEditFormData] = useState<Partial<ClothingItem>>({});
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [isPhotoUpdating, setIsPhotoUpdating] = useState(false);
 
   useEffect(() => {
     loadItems();
@@ -39,18 +43,111 @@ export const WardrobeScreen: React.FC = () => {
     ? items.filter(item => item.category === selectedCategory)
     : items;
 
+  const closeDetailsModal = () => {
+    setSelectedItem(null);
+    setIsEditingFull(false);
+    setEditFormData({});
+    setIsPhotoUpdating(false);
+  };
+
+  const openDetailsModal = (item: ClothingItem) => {
+    setSelectedItem(item);
+    setIsEditingFull(false);
+    setEditFormData({});
+  };
+
+  const getMaterialLabel = (material?: string) => {
+    if (!material || material === 'not specified') {
+      return t('common.notSpecified');
+    }
+
+    const translationKey = `wardrobe.material.${material}`;
+    const translated = t(translationKey);
+    return translated === translationKey ? material : translated;
+  };
+
   // Начать редактирование всех полей
   const startEdit = (item: ClothingItem) => {
     setSelectedItem(item);
     setEditFormData({
       name: item.name,
       color: item.color,
-      material: item.material,
+      material: item.material && item.material !== 'not specified' ? item.material : '',
       season: item.season,
       notes: item.notes,
       category: item.category,
+      imageBase64: item.imageBase64,
+      imageUri: item.imageUri,
     });
     setIsEditingFull(true);
+  };
+
+  const pickEditImage = async (source: 'camera' | 'gallery') => {
+    try {
+      setIsPhotoUpdating(true);
+
+      if (source === 'camera') {
+        const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
+        if (cameraPermission.status !== 'granted') {
+          Alert.alert(t('common.error'), t('addItem.validation.errorOpenCamera'));
+          return;
+        }
+      } else {
+        const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (mediaPermission.status !== 'granted') {
+          Alert.alert(t('common.error'), t('addItem.validation.errorOpenGallery'));
+          return;
+        }
+      }
+
+      const result =
+        source === 'camera'
+          ? await ImagePicker.launchCameraAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              allowsEditing: true,
+              aspect: [4, 3],
+              quality: 0.8,
+            })
+          : await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              allowsEditing: true,
+              aspect: [4, 3],
+              quality: 0.8,
+            });
+
+      if (result.canceled || !result.assets[0]) return;
+
+      const imageUri = result.assets[0].uri;
+      let imageBase64 = imageUri;
+
+      if (!imageUri.startsWith('data:image')) {
+        if (Platform.OS === 'web') {
+          const response = await fetch(imageUri);
+          const blob = await response.blob();
+          imageBase64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        } else {
+          const base64 = await FileSystem.readAsStringAsync(imageUri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+          imageBase64 = `data:image/jpeg;base64,${base64}`;
+        }
+      }
+
+      setEditFormData((prev) => ({
+        ...prev,
+        imageUri,
+        imageBase64,
+      }));
+    } catch (error) {
+      Alert.alert(t('common.error'), t('addItem.validation.unknownError'));
+    } finally {
+      setIsPhotoUpdating(false);
+    }
   };
 
   // Сохранить редактирование
@@ -60,12 +157,21 @@ export const WardrobeScreen: React.FC = () => {
     try {
       const itemId = selectedItem._id || selectedItem.id;
       if (!itemId) throw new Error('Item ID not found');
-      await updateItem(itemId, editFormData);
+
+      const updates: Partial<ClothingItem> = {
+        name: (editFormData.name || selectedItem.name || '').trim(),
+        color: (editFormData.color || selectedItem.color || 'not specified').trim(),
+        material: (editFormData.material || selectedItem.material || 'not specified').trim(),
+        season: editFormData.season && editFormData.season.length > 0 ? editFormData.season : selectedItem.season,
+        notes: (editFormData.notes || '').trim(),
+        imageBase64: editFormData.imageBase64 || selectedItem.imageBase64,
+      };
+
+      await updateItem(itemId, updates);
       setIsEditingFull(false);
       Alert.alert(t('common.success'), t('wardrobe.updated', 'Item updated'));
 
-      const updatedItem = items.find(i => i._id === itemId || i.id === itemId);
-      if (updatedItem) setSelectedItem(updatedItem);
+      setSelectedItem((prev) => (prev ? { ...prev, ...updates } : prev));
       loadItems();
     } catch (error) {
       Alert.alert(t('common.error'), t('wardrobe.updateFailed', 'Failed to update item'));
@@ -109,7 +215,7 @@ export const WardrobeScreen: React.FC = () => {
       );
       if (ok && itemId) {
         deleteItem(itemId);
-        setSelectedItem(null);
+        closeDetailsModal();
       }
       return;
     }
@@ -128,7 +234,7 @@ export const WardrobeScreen: React.FC = () => {
           onPress: () => {
             if (itemId) {
               deleteItem(itemId);
-              setSelectedItem(null);
+              closeDetailsModal();
             }
           },
         },
@@ -142,13 +248,13 @@ export const WardrobeScreen: React.FC = () => {
     const categoryText = t(`wardrobe.category.${item.category}`) || item.category;
     
     return (
-      <TouchableOpacity onPress={() => setSelectedItem(item)} style={styles.itemContainer}>
+      <TouchableOpacity onPress={() => openDetailsModal(item)} style={styles.itemContainer}>
         <Image source={{ uri: imageUri }} style={styles.itemImage} resizeMode="cover" />
         <View style={styles.itemContent}>
           <View>
             <Text style={styles.itemName}>{item.name || t('wardrobe.itemFallback')}</Text>
             <Text style={styles.itemCategory}>{categoryText}</Text>
-            {item.color && <Text style={styles.itemDetail}>Цвет: {item.color}</Text>}
+            {item.color && <Text style={styles.itemDetail}>{t('common.color')}: {item.color}</Text>}
             <Text style={styles.itemDate}>
               {item.createdAt ? new Date(item.createdAt).toLocaleDateString('ru-RU') : ''}
             </Text>
@@ -241,18 +347,25 @@ export const WardrobeScreen: React.FC = () => {
 
       {/* Модальное окно деталей */}
       {selectedItem && (
-        <View style={styles.detailsOverlay} onTouchEnd={() => setSelectedItem(null)}>
+        <View style={styles.detailsOverlay} onTouchEnd={closeDetailsModal}>
           <View
             style={styles.detailsContent}
             onStartShouldSetResponder={() => true}
             onTouchEnd={(e) => e.stopPropagation()}
           >
-            <TouchableOpacity onPress={() => setSelectedItem(null)} style={styles.closeButton}>
+            <TouchableOpacity onPress={closeDetailsModal} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
 
             <Image
-              source={{ uri: selectedItem.imageBase64 || selectedItem.imageUri }}
+              source={{
+                uri:
+                  (isEditingFull
+                    ? (editFormData.imageBase64 || editFormData.imageUri)
+                    : undefined) ||
+                  selectedItem.imageBase64 ||
+                  selectedItem.imageUri,
+              }}
               style={styles.detailsImage}
               resizeMode="cover"
             />
@@ -263,7 +376,7 @@ export const WardrobeScreen: React.FC = () => {
                   <>
                     <Text style={styles.detailsTitle}>{selectedItem.name}</Text>
                     <View style={styles.detailsRow}>
-                      <Text style={styles.detailsLabel}>Категория:</Text>
+                      <Text style={styles.detailsLabel}>{t('addItem.category')}:</Text>
                       <Text style={styles.detailsValue}>
                         {t(`wardrobe.category.${selectedItem.category}`) || selectedItem.category}
                       </Text>
@@ -271,17 +384,15 @@ export const WardrobeScreen: React.FC = () => {
 
                     {selectedItem.color && selectedItem.color !== 'not specified' && (
                       <View style={styles.detailsRow}>
-                        <Text style={styles.detailsLabel}>Цвет:</Text>
+                        <Text style={styles.detailsLabel}>{t('common.color')}:</Text>
                         <Text style={styles.detailsValue}>{selectedItem.color}</Text>
                       </View>
                     )}
 
-                    {selectedItem.material && selectedItem.material !== 'not specified' && (
-                      <View style={styles.detailsRow}>
-                        <Text style={styles.detailsLabel}>{t('common.material')}:</Text>
-                        <Text style={styles.detailsValue}>{selectedItem.material}</Text>
-                      </View>
-                    )}
+                    <View style={styles.detailsRow}>
+                      <Text style={styles.detailsLabel}>{t('common.material')}:</Text>
+                      <Text style={styles.detailsValue}>{getMaterialLabel(selectedItem.material)}</Text>
+                    </View>
 
                     {selectedItem.season && selectedItem.season.length > 0 && (
                       <View style={styles.detailsRow}>
@@ -337,13 +448,37 @@ export const WardrobeScreen: React.FC = () => {
                 ) : (
                   <>
                     <Text style={styles.detailsTitle}>{t('common.editing')}</Text>
+                    <View style={styles.editPhotoButtonsRow}>
+                      <TouchableOpacity
+                        onPress={() => pickEditImage('camera')}
+                        style={[styles.editPhotoButton, styles.editPhotoCameraButton]}
+                        disabled={isPhotoUpdating}
+                      >
+                        {isPhotoUpdating ? (
+                          <ActivityIndicator color="#fff" size="small" />
+                        ) : (
+                          <Text style={styles.editPhotoButtonText}>{t('addItem.camera')}</Text>
+                        )}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => pickEditImage('gallery')}
+                        style={[styles.editPhotoButton, styles.editPhotoGalleryButton]}
+                        disabled={isPhotoUpdating}
+                      >
+                        {isPhotoUpdating ? (
+                          <ActivityIndicator color="#fff" size="small" />
+                        ) : (
+                          <Text style={styles.editPhotoButtonText}>{t('addItem.gallery')}</Text>
+                        )}
+                      </TouchableOpacity>
+                    </View>
 
                     <Text style={styles.editLabel}>{t('addItem.name')}:</Text>
                     <TextInput
                       style={styles.editTextInput}
                       value={editFormData.name || ''}
                       onChangeText={(text) => setEditFormData({ ...editFormData, name: text })}
-                      placeholder="Название вещи"
+                      placeholder={t('addItem.namePlaceholder')}
                       placeholderTextColor="#9ca3af"
                     />
 
@@ -352,7 +487,7 @@ export const WardrobeScreen: React.FC = () => {
                       style={styles.editTextInput}
                       value={editFormData.color || ''}
                       onChangeText={(text) => setEditFormData({ ...editFormData, color: text })}
-                      placeholder="Цвет"
+                      placeholder={t('addItem.colorPlaceholder')}
                       placeholderTextColor="#9ca3af"
                     />
 
@@ -361,7 +496,7 @@ export const WardrobeScreen: React.FC = () => {
                       style={styles.editTextInput}
                       value={editFormData.material || ''}
                       onChangeText={(text) => setEditFormData({ ...editFormData, material: text })}
-                      placeholder="Материал"
+                      placeholder={t('addItem.selectMaterial')}
                       placeholderTextColor="#9ca3af"
                     />
 
@@ -407,7 +542,7 @@ export const WardrobeScreen: React.FC = () => {
                       style={[styles.editTextInput, styles.notesInput]}
                       value={editFormData.notes || ''}
                       onChangeText={(text) => setEditFormData({ ...editFormData, notes: text })}
-                      placeholder="Описание вещи"
+                      placeholder={t('addItem.notesPlaceholder')}
                       placeholderTextColor="#9ca3af"
                       multiline
                       numberOfLines={4}
@@ -518,6 +653,36 @@ const styles = StyleSheet.create({
   editLabel: { fontSize: 14, fontWeight: '600', color: '#374151', marginTop: 12, marginBottom: 6 },
   editTextInput: { borderWidth: 1, borderColor: '#d1d5db', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' },
   notesInput: { textAlignVertical: 'top', marginBottom: 12 },
+  editImagePreview: {
+    width: '100%',
+    height: 140,
+    borderRadius: 10,
+    marginBottom: 10,
+    backgroundColor: '#e5e7eb',
+  },
+  editPhotoButtonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 8,
+  },
+  editPhotoButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editPhotoCameraButton: {
+    backgroundColor: '#3b82f6',
+  },
+  editPhotoGalleryButton: {
+    backgroundColor: '#a855f7',
+  },
+  editPhotoButtonText: {
+    color: '#ffffff',
+    fontWeight: '600',
+    fontSize: 13,
+  },
   editButtonsContainer: { flexDirection: 'row', gap: 8 },
   editButton: { flex: 1, paddingVertical: 10, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },
   cancelButton: { backgroundColor: '#e5e7eb' },

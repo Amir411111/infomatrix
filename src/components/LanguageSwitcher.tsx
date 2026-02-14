@@ -31,10 +31,10 @@ export const LanguageSwitcher = () => {
       style={{
         paddingHorizontal: 14,
         paddingVertical: 10,
-        borderRadius: 6,
-        backgroundColor: '#3b82f6',
+        borderRadius: 10,
+        backgroundColor: '#2563eb',
         borderWidth: 1,
-        borderColor: '#2563eb',
+        borderColor: '#1d4ed8',
         minWidth: 50,
         alignItems: 'center',
       }}

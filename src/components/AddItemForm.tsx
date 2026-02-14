@@ -274,33 +274,34 @@ const styles = StyleSheet.create({
   container: {
     padding: 24,
     backgroundColor: '#ffffff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: '800',
     marginBottom: 24,
     textAlign: 'center',
-    color: '#111827',
+    color: '#0f172a',
   },
   section: {
     marginBottom: 16,
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     marginBottom: 8,
-    color: '#111827',
+    color: '#334155',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
+    borderColor: '#cbd5e1',
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#111827',
+    color: '#0f172a',
+    backgroundColor: '#f8fafc',
   },
   noteInput: {
     minHeight: 60,
@@ -315,14 +316,14 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: 256,
-    borderRadius: 8,
+    borderRadius: 14,
     marginBottom: 16,
   },
   removeImageButton: {
     backgroundColor: '#ef4444',
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingVertical: 10,
+    borderRadius: 10,
   },
   removeImageButtonText: {
     color: '#ffffff',
@@ -337,11 +338,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
   },
   cameraButton: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2563eb',
   },
   galleryButton: {
     backgroundColor: '#a855f7',
@@ -358,11 +359,14 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: '#e5e7eb',
+    borderRadius: 12,
+    backgroundColor: '#f1f5f9',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
   },
   categoryButtonActive: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2563eb',
+    borderColor: '#2563eb',
   },
   categoryButtonText: {
     textAlign: 'center',
@@ -378,10 +382,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    backgroundColor: '#f8fafc',
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: '#cbd5e1',
   },
   dropdownButtonText: {
     fontSize: 16,
@@ -393,9 +397,9 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     backgroundColor: '#ffffff',
-    borderRadius: 8,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: '#cbd5e1',
     marginTop: 4,
     overflow: 'hidden',
     maxHeight: 240,
@@ -407,14 +411,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f3f4f6',
   },
   dropdownItemSelected: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#eef2ff',
   },
   dropdownItemText: {
     fontSize: 14,
     color: '#374151',
   },
   dropdownItemTextSelected: {
-    color: '#3b82f6',
+    color: '#2563eb',
     fontWeight: '600',
   },
   seasonButtons: {
@@ -425,11 +429,14 @@ const styles = StyleSheet.create({
   seasonButton: {
     paddingVertical: 10,
     paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: '#e5e7eb',
+    borderRadius: 10,
+    backgroundColor: '#f1f5f9',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
   },
   seasonButtonActive: {
-    backgroundColor: '#8b5cf6',
+    backgroundColor: '#4f46e5',
+    borderColor: '#4f46e5',
   },
   seasonButtonText: {
     fontWeight: '600',
@@ -447,13 +454,13 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 13,
     paddingHorizontal: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: '#d1d5db',
+    backgroundColor: '#e2e8f0',
   },
   cancelButtonText: {
     textAlign: 'center',
@@ -461,7 +468,7 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   saveButton: {
-    backgroundColor: '#10b981',
+    backgroundColor: '#2563eb',
   },
   saveButtonText: {
     textAlign: 'center',

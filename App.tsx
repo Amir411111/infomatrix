@@ -3,6 +3,7 @@
  * Настройка навигации и провайдеров
  */
 import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
@@ -19,16 +20,64 @@ import { WardrobeScreen } from './src/screens/WardrobeScreen';
 import { OutfitBuilderScreen } from './src/screens/OutfitBuilderScreen';
 import { OutfitsListScreen } from './src/screens/OutfitsListScreen';
 import { RecommendationsScreen } from './src/screens/RecommendationsScreen';
+import { WelcomeScreen } from './src/screens/WelcomeScreen';
 
 const Tab = createBottomTabNavigator();
+const ONBOARDING_KEY = 'clothmatch_has_started';
 
 // App content component that subscribes to language changes
 function AppContent() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const language = useLanguageStore(state => state.language);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [checkingWelcome, setCheckingWelcome] = useState(true);
 
   // Use language to force re-render when it changes
   const key = `app-${language}`;
+
+  useEffect(() => {
+    const checkWelcomeStatus = async () => {
+      try {
+        const hasStarted = await AsyncStorage.getItem(ONBOARDING_KEY);
+        setShowWelcome(hasStarted !== 'true');
+      } catch (error) {
+        console.error('Error reading onboarding status:', error);
+        setShowWelcome(true);
+      } finally {
+        setCheckingWelcome(false);
+      }
+    };
+
+    checkWelcomeStatus();
+  }, []);
+
+  const handleGetStarted = async () => {
+    try {
+      await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+    } catch (error) {
+      console.error('Error saving onboarding status:', error);
+    } finally {
+      setShowWelcome(false);
+    }
+  };
+
+  if (checkingWelcome) {
+    return (
+      <SafeAreaProvider key={key}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>Loading...</Text>
+        </View>
+      </SafeAreaProvider>
+    );
+  }
+
+  if (showWelcome) {
+    return (
+      <SafeAreaProvider key={key}>
+        <WelcomeScreen onGetStarted={handleGetStarted} />
+      </SafeAreaProvider>
+    );
+  }
 
   return (
     <SafeAreaProvider key={key}>
@@ -37,12 +86,24 @@ function AppContent() {
         <Tab.Navigator
           screenOptions={{
             headerShown: false,
-            tabBarActiveTintColor: '#3b82f6',
-            tabBarInactiveTintColor: '#6b7280',
+            tabBarActiveTintColor: '#2563eb',
+            tabBarInactiveTintColor: '#64748b',
+            tabBarLabelStyle: {
+              fontSize: 12,
+              fontWeight: '600',
+              paddingBottom: 2,
+            },
             tabBarStyle: {
-              paddingBottom: 5,
-              paddingTop: 5,
-              height: 60,
+              height: 68,
+              paddingBottom: 8,
+              paddingTop: 8,
+              borderTopWidth: 0,
+              backgroundColor: '#ffffff',
+              shadowColor: '#0f172a',
+              shadowOffset: { width: 0, height: -2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 12,
+              elevation: 10,
             },
           }}
         >

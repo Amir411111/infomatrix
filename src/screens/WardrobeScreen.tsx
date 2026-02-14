@@ -16,6 +16,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
@@ -274,12 +275,12 @@ export const WardrobeScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Заголовок */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.title}>{t('wardrobe.title')}</Text>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={styles.headerActions}>
             <LanguageSwitcher />
             <TouchableOpacity onPress={handleClearCache} style={styles.clearCacheButton}>
               <Text style={styles.clearCacheButtonText}>🗑️ {t('wardrobe.clearCacheShort')}</Text>
@@ -576,89 +577,107 @@ export const WardrobeScreen: React.FC = () => {
           </View>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
 // Стили
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
+  container: { flex: 1, backgroundColor: '#f8fafc' },
   header: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingTop: 14,
+    paddingBottom: 16,
     ...Platform.select({
-      web: { boxShadow: '0 1px 2px rgba(0,0,0,0.1)' },
+      web: { boxShadow: '0 6px 20px rgba(15,23,42,0.06)' },
       default: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
+        shadowColor: '#0f172a',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.06,
+        shadowRadius: 16,
+        elevation: 4,
       },
     }),
   },
-  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  title: { fontSize: 30, fontWeight: 'bold', color: '#111827' },
-  clearCacheButton: {
-    backgroundColor: '#f3f4f6',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    rowGap: 10,
+    columnGap: 10,
   },
-  clearCacheButtonText: { fontSize: 12, fontWeight: '600', color: '#6b7280' },
-  subtitle: { color: '#6b7280', marginTop: 8, fontSize: 14 },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginLeft: 'auto',
+    flexShrink: 1,
+  },
+  title: { fontSize: 30, fontWeight: '800', color: '#0f172a', flexShrink: 1, maxWidth: '100%' },
+  clearCacheButton: {
+    backgroundColor: '#eef2ff',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#c7d2fe',
+    maxWidth: 130,
+  },
+  clearCacheButtonText: { fontSize: 12, fontWeight: '700', color: '#4338ca' },
+  subtitle: { color: '#64748b', marginTop: 8, fontSize: 14 },
   listContent: { padding: 16 },
   itemContainer: {
     backgroundColor: '#ffffff',
-    borderRadius: 8,
+    borderRadius: 18,
     marginBottom: 16,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
     ...Platform.select({
-      web: { boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
+      web: { boxShadow: '0 10px 24px rgba(15,23,42,0.08)' },
       default: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        shadowColor: '#0f172a',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.08,
+        shadowRadius: 18,
+        elevation: 5,
       },
     }),
   },
-  itemImage: { width: '100%', height: 192 },
+  itemImage: { width: '100%', height: 210 },
   itemContent: { padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  itemName: { fontSize: 16, fontWeight: '600', color: '#111827' },
-  itemCategory: { fontSize: 14, color: '#6b7280', marginTop: 2 },
-  itemDetail: { fontSize: 12, color: '#9ca3af', marginTop: 2 },
-  itemDate: { color: '#6b7280', fontSize: 12, marginTop: 4 },
-  deleteButton: { backgroundColor: '#ef4444', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
+  itemName: { fontSize: 17, fontWeight: '700', color: '#0f172a' },
+  itemCategory: { fontSize: 14, color: '#475569', marginTop: 2 },
+  itemDetail: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  itemDate: { color: '#64748b', fontSize: 12, marginTop: 6 },
+  deleteButton: { backgroundColor: '#ef4444', paddingHorizontal: 16, paddingVertical: 9, borderRadius: 10 },
   deleteButtonText: { color: '#ffffff', fontWeight: '600' },
   emptyContainer: { alignItems: 'center', justifyContent: 'center', paddingVertical: 80 },
-  emptyText: { fontSize: 20, color: '#9ca3af', marginBottom: 8 },
-  emptySubtext: { color: '#9ca3af', textAlign: 'center' },
-  addButton: { position: 'absolute', bottom: 24, right: 24, backgroundColor: '#3b82f6', width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', ...Platform.select({ web: { boxShadow: '0 4px 8px rgba(0,0,0,0.3)' }, default: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 } }) },
+  emptyText: { fontSize: 20, color: '#64748b', marginBottom: 8, fontWeight: '700' },
+  emptySubtext: { color: '#64748b', textAlign: 'center' },
+  addButton: { position: 'absolute', bottom: 24, right: 24, backgroundColor: '#2563eb', width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', ...Platform.select({ web: { boxShadow: '0 10px 20px rgba(37,99,235,0.38)' }, default: { shadowColor: '#1d4ed8', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.32, shadowRadius: 16, elevation: 10 } }) },
   addButtonText: { color: '#ffffff', fontSize: 32, fontWeight: 'bold' },
   modalOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
+  modalContent: { backgroundColor: '#ffffff', borderTopLeftRadius: 26, borderTopRightRadius: 26, padding: 20, maxHeight: '90%' },
   detailsOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center' },
-  detailsContent: { backgroundColor: '#ffffff', borderRadius: 12, width: '90%', maxHeight: '85%', overflow: 'hidden' },
-  closeButton: { position: 'absolute', top: 12, right: 12, backgroundColor: '#f3f4f6', width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
+  detailsContent: { backgroundColor: '#ffffff', borderRadius: 22, width: '90%', maxHeight: '85%', overflow: 'hidden' },
+  closeButton: { position: 'absolute', top: 12, right: 12, backgroundColor: '#eff6ff', width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', zIndex: 10 },
   closeButtonText: { fontSize: 18, fontWeight: 'bold', color: '#6b7280' },
-  detailsImage: { width: '100%', height: 180 },
+  detailsImage: { width: '100%', height: 210 },
   detailsInfoScroll: { flex: 1, maxHeight: 'auto' },
   detailsInfo: { padding: 20 },
-  detailsTitle: { fontSize: 24, fontWeight: 'bold', color: '#111827', marginBottom: 16 },
+  detailsTitle: { fontSize: 24, fontWeight: '800', color: '#0f172a', marginBottom: 16 },
   detailsRow: { marginBottom: 12, flexDirection: 'row', justifyContent: 'space-between' },
-  detailsLabel: { fontSize: 14, fontWeight: '600', color: '#6b7280' },
-  detailsValue: { fontSize: 14, color: '#111827', fontWeight: '500', flex: 1, textAlign: 'right', paddingLeft: 12 },
+  detailsLabel: { fontSize: 14, fontWeight: '700', color: '#64748b' },
+  detailsValue: { fontSize: 14, color: '#0f172a', fontWeight: '600', flex: 1, textAlign: 'right', paddingLeft: 12 },
   deleteFullButton: { backgroundColor: '#ef4444', paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginTop: 16 },
   deleteFullButtonText: { color: '#ffffff', fontWeight: '600', fontSize: 16 },
-  editFullButton: { backgroundColor: '#10b981', paddingVertical: 12, borderRadius: 8, alignItems: 'center', marginTop: 16, marginBottom: 8 },
+  editFullButton: { backgroundColor: '#2563eb', paddingVertical: 12, borderRadius: 10, alignItems: 'center', marginTop: 16, marginBottom: 8 },
   editFullButtonText: { color: '#ffffff', fontWeight: '600', fontSize: 16 },
-  editLabel: { fontSize: 14, fontWeight: '600', color: '#374151', marginTop: 12, marginBottom: 6 },
-  editTextInput: { borderWidth: 1, borderColor: '#d1d5db', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#111827' },
+  editLabel: { fontSize: 14, fontWeight: '700', color: '#475569', marginTop: 12, marginBottom: 6 },
+  editTextInput: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: '#0f172a', backgroundColor: '#f8fafc' },
   notesInput: { textAlignVertical: 'top', marginBottom: 12 },
   editImagePreview: {
     width: '100%',
@@ -674,13 +693,13 @@ const styles = StyleSheet.create({
   },
   editPhotoButton: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: 11,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   editPhotoCameraButton: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2563eb',
   },
   editPhotoGalleryButton: {
     backgroundColor: '#a855f7',
@@ -691,18 +710,18 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   editButtonsContainer: { flexDirection: 'row', gap: 8 },
-  editButton: { flex: 1, paddingVertical: 10, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },
-  cancelButton: { backgroundColor: '#e5e7eb' },
-  saveButton: { backgroundColor: '#3b82f6' },
-  editButtonText: { fontWeight: '600', fontSize: 14, color: '#111827' },
+  editButton: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  cancelButton: { backgroundColor: '#e2e8f0' },
+  saveButton: { backgroundColor: '#2563eb' },
+  editButtonText: { fontWeight: '700', fontSize: 14, color: '#0f172a' },
   categoryFilters: { flexDirection: 'row', gap: 8, marginTop: 12, paddingBottom: 8 },
-  categoryButton: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6, borderWidth: 1, borderColor: '#d1d5db', backgroundColor: '#f9fafb' },
-  categoryButtonActive: { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+  categoryButton: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#cbd5e1', backgroundColor: '#f8fafc' },
+  categoryButtonActive: { backgroundColor: '#2563eb', borderColor: '#2563eb' },
   categoryButtonText: { fontSize: 13, fontWeight: '500', color: '#374151' },
   categoryButtonTextActive: { color: '#ffffff' },
   seasonButtonsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
-  seasonButton: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6, borderWidth: 1, borderColor: '#d1d5db', backgroundColor: '#f9fafb' },
-  seasonButtonActive: { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+  seasonButton: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#cbd5e1', backgroundColor: '#f8fafc' },
+  seasonButtonActive: { backgroundColor: '#2563eb', borderColor: '#2563eb' },
   seasonButtonText: { fontSize: 13, fontWeight: '500', color: '#374151' },
   seasonButtonTextActive: { color: '#ffffff' },
 });

@@ -92,6 +92,28 @@ export const OutfitsListScreen: React.FC = () => {
     return value.imageBase64 || value.imageUri;
   };
 
+  const getOutfitBadges = (outfit: Outfit): string[] => {
+    const translatedStyle = outfit.style ? t(`common.${outfit.style}`) : '';
+    const styleBadge = translatedStyle && translatedStyle !== `common.${outfit.style}`
+      ? translatedStyle
+      : (outfit.style || '');
+
+    const translatedCategory = outfit.category ? t(`common.${outfit.category}`) : '';
+    const categoryBadge = translatedCategory && translatedCategory !== `common.${outfit.category}`
+      ? translatedCategory
+      : (outfit.category || '');
+
+    const uniqueBadges = new Set<string>();
+    [styleBadge, categoryBadge]
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .forEach((value) => uniqueBadges.add(value.toLowerCase()));
+
+    return Array.from(uniqueBadges).map((value) =>
+      value.charAt(0).toUpperCase() + value.slice(1)
+    );
+  };
+
   const renderOutfitCard = (outfit: Outfit) => (
     <TouchableOpacity key={outfit._id || outfit.name} style={styles.outfitCard} onPress={() => openOutfitDetails(outfit)}>
       <View style={styles.outfitImages}>
@@ -111,24 +133,22 @@ export const OutfitsListScreen: React.FC = () => {
         {outfit.description && <Text style={styles.outfitDescription}>{outfit.description}</Text>}
 
         <View style={styles.outfitMeta}>
-          {(() => {
-            const badges = [
-              outfit.style ? t(`common.${outfit.style}`) : null,
-              outfit.category ? outfit.category : null,
-            ].filter(Boolean) as string[];
-
-            return badges.map((b) => (
-              <View key={`badge-${b}`} style={styles.metaBadge}>
-                <Text style={styles.metaBadgeText}>{b}</Text>
-              </View>
-            ));
-          })()}
+          {getOutfitBadges(outfit).map((badge) => (
+            <View key={`badge-${badge}`} style={styles.metaBadge}>
+              <Text style={styles.metaBadgeText}>{badge}</Text>
+            </View>
+          ))}
         </View>
       </View>
 
       <View style={styles.outfitActions}>
-        <TouchableOpacity onPress={() => outfit._id && toggleFavorite(outfit._id)} style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>{outfit.isFavorite ? '❤️' : '🤍'}</Text>
+        <TouchableOpacity
+          onPress={() => outfit._id && toggleFavorite(outfit._id)}
+          style={[styles.actionButton, outfit.isFavorite && styles.actionButtonFavorite]}
+        >
+          <Text style={[styles.actionButtonText, outfit.isFavorite && styles.actionButtonTextFavorite]}>
+            ♥
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => outfit._id && handleDelete(outfit._id, outfit.name || t('outfits.title'))}
@@ -313,7 +333,7 @@ export const OutfitsListScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f8fafc',
   },
   centerContainer: {
     flex: 1,
@@ -323,36 +343,35 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#6b7280',
+    color: '#64748b',
   },
   header: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 24,
     paddingVertical: 16,
     ...Platform.OS === 'web'
-      ? { boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }
+      ? { boxShadow: '0 6px 20px rgba(15,23,42,0.06)' }
       : {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.1,
-          shadowRadius: 2,
-          elevation: 2,
+          shadowColor: '#0f172a',
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.06,
+          shadowRadius: 16,
+          elevation: 4,
         },
   },
   headerTitle: {
     fontSize: 30,
-    fontWeight: 'bold',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#0f172a',
   },
   headerSubtitle: {
-    color: '#6b7280',
+    color: '#64748b',
     marginTop: 4,
     fontSize: 14,
   },
   filtersWrapper: {
     backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomWidth: 0,
     zIndex: 1000,
   },
   filtersScroll: {
@@ -365,21 +384,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   filterButton: {
-    width: 115,
+    minWidth: 118,
     height: 40,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 22,
-    backgroundColor: '#f3f4f6',
-    borderWidth: 2,
-    borderColor: '#d1d5db',
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
   },
   filterButtonActive: {
-    backgroundColor: '#3b82f6',
-    borderColor: '#3b82f6',
+    backgroundColor: '#2563eb',
+    borderColor: '#2563eb',
   },
   filterButtonText: {
     fontSize: 12,
@@ -395,27 +414,29 @@ const styles = StyleSheet.create({
   },
   outfitCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 16,
+    borderRadius: 20,
     marginBottom: 16,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
     ...Platform.OS === 'web'
-      ? { boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }
+      ? { boxShadow: '0 10px 24px rgba(15,23,42,0.08)' }
       : {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.12,
-          shadowRadius: 8,
-          elevation: 4,
+          shadowColor: '#0f172a',
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.08,
+          shadowRadius: 18,
+          elevation: 5,
         },
   },
   outfitImages: {
     flexDirection: 'row',
     height: 160,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f1f5f9',
   },
   outfitItemImage: {
     flex: 1,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#e2e8f0',
   },
   outfitInfo: {
     padding: 16,
@@ -424,12 +445,12 @@ const styles = StyleSheet.create({
   },
   outfitName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#0f172a',
   },
   outfitDescription: {
     fontSize: 14,
-    color: '#6b7280',
+    color: '#64748b',
     marginTop: 6,
     lineHeight: 20,
   },
@@ -442,13 +463,13 @@ const styles = StyleSheet.create({
   metaBadge: {
     paddingHorizontal: 10,
     paddingVertical: 6,
-    backgroundColor: '#dbeafe',
-    borderRadius: 6,
+    backgroundColor: '#eef2ff',
+    borderRadius: 10,
   },
   metaBadgeText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#3b82f6',
+    color: '#4338ca',
   },
   outfitActions: {
     flexDirection: 'row',
@@ -460,11 +481,18 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
-    backgroundColor: '#f3f4f6',
+    borderRadius: 10,
+    backgroundColor: '#f1f5f9',
+  },
+  actionButtonFavorite: {
+    backgroundColor: '#fee2e2',
   },
   actionButtonText: {
     fontSize: 20,
+    color: '#94a3b8',
+  },
+  actionButtonTextFavorite: {
+    color: '#ef4444',
   },
   emptyContainer: {
     flex: 1,
@@ -474,13 +502,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#374151',
+    fontWeight: '700',
+    color: '#334155',
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: 15,
-    color: '#6b7280',
+    color: '#64748b',
     marginTop: 12,
     textAlign: 'center',
     lineHeight: 22,
@@ -494,28 +522,29 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '90%',
     backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 20,
     padding: 16,
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '800',
     marginBottom: 8,
-    color: '#111827',
+    color: '#0f172a',
   },
   modalDescription: {
-    color: '#6b7280',
+    color: '#64748b',
     marginBottom: 12,
   },
   modalInput: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
+    borderColor: '#cbd5e1',
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
-    color: '#111827',
+    color: '#0f172a',
     marginBottom: 10,
+    backgroundColor: '#f8fafc',
   },
   modalInputMultiline: {
     minHeight: 84,
@@ -530,11 +559,11 @@ const styles = StyleSheet.create({
   editStyleButton: {
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: '#e5e7eb',
+    borderRadius: 10,
+    backgroundColor: '#e2e8f0',
   },
   editStyleButtonActive: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2563eb',
   },
   editStyleButtonText: {
     color: '#374151',
@@ -552,14 +581,14 @@ const styles = StyleSheet.create({
   modalImage: {
     flex: 1,
     height: 120,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   modalCloseButton: {
     alignSelf: 'flex-end',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: '#3b82f6',
-    borderRadius: 8,
+    backgroundColor: '#2563eb',
+    borderRadius: 10,
   },
   modalButtonsRow: {
     flexDirection: 'row',
@@ -570,8 +599,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 8,
+    backgroundColor: '#e2e8f0',
+    borderRadius: 10,
   },
   modalSecondaryButtonText: {
     color: '#374151',

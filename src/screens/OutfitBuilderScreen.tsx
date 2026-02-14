@@ -327,27 +327,27 @@ export const OutfitBuilderScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#f8fafc',
   },
   header: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 24,
     paddingVertical: 16,
-    ...Platform.OS === 'web' ? { boxShadow: '0 1px 2px rgba(0,0,0,0.1)' } : {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
-      shadowRadius: 2,
-      elevation: 2,
+    ...Platform.OS === 'web' ? { boxShadow: '0 6px 20px rgba(15,23,42,0.06)' } : {
+      shadowColor: '#0f172a',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.06,
+      shadowRadius: 16,
+      elevation: 4,
     }
   },
   headerTitle: {
     fontSize: 30,
-    fontWeight: 'bold',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#0f172a',
   },
   headerSubtitle: {
-    color: '#6b7280',
+    color: '#64748b',
     marginTop: 4,
     fontSize: 14,
   },
@@ -359,13 +359,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 16,
     padding: 16,
-    borderRadius: 8,
-    ...Platform.OS === 'web' ? { boxShadow: '0 2px 4px rgba(0,0,0,0.1)' } : {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      elevation: 3,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    ...Platform.OS === 'web' ? { boxShadow: '0 10px 24px rgba(15,23,42,0.08)' } : {
+      shadowColor: '#0f172a',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.08,
+      shadowRadius: 18,
+      elevation: 5,
     }
   },
   outfitPreviewTitle: {
@@ -383,8 +385,8 @@ const styles = StyleSheet.create({
   },
   outfitImage: {
     width: '100%',
-    height: 128,
-    borderRadius: 8,
+    height: 132,
+    borderRadius: 12,
   },
   outfitImageLabel: {
     textAlign: 'center',
@@ -394,9 +396,9 @@ const styles = StyleSheet.create({
   },
   completeBadge: {
     marginTop: 16,
-    backgroundColor: '#d1fae5',
+    backgroundColor: '#dcfce7',
     padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
   },
   completeBadgeText: {
     color: '#065f46',
@@ -420,34 +422,34 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: '800',
     marginBottom: 12,
     paddingHorizontal: 16,
-    color: '#111827',
+    color: '#0f172a',
   },
   emptyCategory: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#eef2ff',
     marginHorizontal: 16,
     padding: 24,
-    borderRadius: 8,
+    borderRadius: 14,
     alignItems: 'center',
   },
   emptyCategoryText: {
-    color: '#6b7280',
+    color: '#475569',
   },
   scrollContent: {
     paddingHorizontal: 16,
   },
   itemCard: {
     marginRight: 16,
-    borderRadius: 8,
+    borderRadius: 14,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: '#e5e7eb',
+    borderColor: '#dbe2ea',
   },
   itemCardSelected: {
-    borderWidth: 4,
-    borderColor: '#3b82f6',
+    borderWidth: 3,
+    borderColor: '#2563eb',
   },
   itemCardImage: {
     width: 128,
@@ -464,7 +466,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   selectedCheckmark: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2563eb',
     borderRadius: 16,
     width: 32,
     height: 32,
@@ -482,13 +484,15 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
     padding: 16,
-    borderRadius: 8,
-    ...Platform.OS === 'web' ? { boxShadow: '0 1px 2px rgba(0,0,0,0.1)' } : {
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
-      shadowRadius: 2,
-      elevation: 2,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    ...Platform.OS === 'web' ? { boxShadow: '0 10px 20px rgba(15,23,42,0.06)' } : {
+      shadowColor: '#0f172a',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.06,
+      shadowRadius: 14,
+      elevation: 3,
     }
   },
   filterContainer: {
@@ -508,13 +512,13 @@ const styles = StyleSheet.create({
   filterButton: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: '#e5e7eb',
+    borderRadius: 10,
+    backgroundColor: '#f8fafc',
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: '#cbd5e1',
   },
   filterButtonActive: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#2563eb',
     borderColor: '#2563eb',
   },
   filterButtonText: {
@@ -531,10 +535,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 6,
-    backgroundColor: '#f3f4f6',
+    borderRadius: 10,
+    backgroundColor: '#f8fafc',
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: '#cbd5e1',
   },
   dropdownButtonText: {
     fontSize: 14,
@@ -546,9 +550,9 @@ const styles = StyleSheet.create({
   },
   dropdownMenu: {
     backgroundColor: '#ffffff',
-    borderRadius: 6,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: '#cbd5e1',
     marginTop: 4,
     overflow: 'hidden',
     maxHeight: 200,
@@ -560,14 +564,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f3f4f6',
   },
   dropdownItemSelected: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#eef2ff',
   },
   dropdownItemText: {
     fontSize: 13,
     color: '#374151',
   },
   dropdownItemTextSelected: {
-    color: '#3b82f6',
+    color: '#2563eb',
     fontWeight: '600',
   },
   outfitButtons: {
@@ -578,8 +582,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 16,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 6,
+    backgroundColor: '#e2e8f0',
+    borderRadius: 10,
     alignItems: 'center',
   },
   clearButtonText: {
@@ -592,8 +596,8 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     paddingVertical: 10,
     paddingHorizontal: 16,
-    backgroundColor: '#10b981',
-    borderRadius: 6,
+    backgroundColor: '#2563eb',
+    borderRadius: 10,
     alignItems: 'center',
   },
   saveButtonText: {
@@ -615,7 +619,7 @@ const styles = StyleSheet.create({
   },
   modal: {
     backgroundColor: '#ffffff',
-    borderRadius: 12,
+    borderRadius: 20,
     padding: 24,
     maxWidth: 500,
     width: '90%',
@@ -623,8 +627,8 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#0f172a',
     marginBottom: 20,
   },
   modalSection: {
@@ -638,13 +642,13 @@ const styles = StyleSheet.create({
   },
   modalInput: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 6,
+    borderColor: '#cbd5e1',
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#111827',
-    backgroundColor: '#f9fafb',
+    color: '#0f172a',
+    backgroundColor: '#f8fafc',
   },
   modalTextArea: {
     textAlignVertical: 'top',
@@ -659,15 +663,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    borderRadius: 6,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: '#cbd5e1',
     alignItems: 'center',
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f8fafc',
   },
   styleButtonActive: {
-    backgroundColor: '#dbeafe',
-    borderColor: '#3b82f6',
+    backgroundColor: '#eef2ff',
+    borderColor: '#2563eb',
   },
   styleButtonText: {
     fontSize: 12,
@@ -675,7 +679,7 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   styleButtonTextActive: {
-    color: '#3b82f6',
+    color: '#2563eb',
   },
   modalButtons: {
     flexDirection: 'row',
@@ -685,7 +689,7 @@ const styles = StyleSheet.create({
   modalButton: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 6,
+    borderRadius: 10,
     alignItems: 'center',
   },
   modalButtonCancel: {
@@ -697,7 +701,7 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   modalButtonSave: {
-    backgroundColor: '#10b981',
+    backgroundColor: '#2563eb',
   },
   modalButtonSaveText: {
     fontSize: 14,

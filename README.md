@@ -1,97 +1,132 @@
-# ClothMatch: Виртуальный гардероб
+# ClothMatch
 
-MVP кроссплатформенного приложения для управления гардеробом с AI-рекомендациями.
+ClothMatch is a cross-platform wardrobe assistant built with Expo and React Native.
+It helps users manage clothing items, build outfits, and get weather-aware recommendations.
 
-## Функциональность
+## Features
 
-### CRUDL База
-- ✅ Добавление фото одежды через камеру или галерею
-- ✅ Присвоение категории (Верх, Низ, Обувь)
-- ✅ Просмотр списка всех вещей
-- ✅ Удаление вещей из гардероба
-- ✅ Локальное хранение через AsyncStorage
+- Add clothing items with photos (camera or gallery)
+- Categorize items and manage your wardrobe
+- Build outfits from saved items
+- Save and browse created outfits
+- Get recommendation hints based on weather conditions
+- Use the app in multiple languages (English and Russian)
 
-### Конструктор Луков
-- ✅ Выбор одной вещи из каждой категории
-- ✅ Визуальный предпросмотр образа
-- ✅ Очистка выбранного образа
+## Tech Stack
 
-### AI-советник
-- ✅ Функция `getSmartRecommendation` для подбора одежды
-- ✅ Учет температуры и погодных условий
-- ✅ Логика подбора на основе температуры:
-  - < 0°C: теплая одежда
-  - 0-10°C: осенняя/весенняя одежда
-  - 10-20°C: легкая одежда
-  - > 20°C: летняя одежда
-  - Дождь: предпочтение закрытой обуви
+- React Native + Expo
+- TypeScript
+- Zustand (state management)
+- AsyncStorage (local persistence)
+- i18next + react-i18next (localization)
+- NativeWind (Tailwind-style utility classes)
+- Optional backend: Node.js + Express + MongoDB
 
-## Технический стек
+## Project Structure
 
-- **Framework**: React Native (Expo)
-- **UI**: NativeWind (Tailwind для React Native)
-- **State Management**: Zustand
-- **Storage**: AsyncStorage
-- **Navigation**: React Navigation (Bottom Tabs)
-- **Image Picker**: expo-image-picker
-- **Language**: TypeScript
+```text
+infomatrix-main/
+├── App.tsx
+├── src/
+│   ├── components/
+│   ├── screens/
+│   ├── services/
+│   ├── store/
+│   ├── i18n/
+│   └── types/
+├── server/
+│   ├── index.js
+│   ├── models/
+│   └── routes/
+└── README.md
+```
 
-## Установка
+## Prerequisites
 
-1. Установите зависимости:
+- Node.js 18+
+- npm
+- Expo Go app (for running on a real device) or Android/iOS emulator
+
+## Installation
+
+1. Install frontend dependencies:
+
 ```bash
 npm install
 ```
 
-2. Запустите приложение:
+2. Install backend dependencies (optional, for API + MongoDB):
+
+```bash
+npm run server:install
+```
+
+## Running the App
+
+### Frontend (Expo)
+
 ```bash
 npm start
 ```
 
-Затем выберите платформу (iOS/Android/Web).
+Useful shortcuts/scripts:
 
-## Структура проекта
-
-```
-clothmatch/
-├── src/
-│   ├── components/
-│   │   └── AddItemForm.tsx      # Форма добавления вещи
-│   ├── screens/
-│   │   ├── WardrobeScreen.tsx    # Экран гардероба
-│   │   ├── OutfitBuilderScreen.tsx # Конструктор луков
-│   │   └── RecommendationsScreen.tsx # AI-рекомендации
-│   ├── store/
-│   │   └── wardrobeStore.ts     # Zustand store
-│   ├── services/
-│   │   └── recommendationService.ts # AI-логика
-│   └── types/
-│       └── index.ts              # TypeScript типы
-├── App.tsx                        # Главный файл с навигацией
-├── package.json
-└── tsconfig.json
+```bash
+npm run android
+npm run ios
+npm run web
 ```
 
-## Основные компоненты
+### Backend (Express API)
 
-### App.tsx
-Главный файл с настройкой Tab Navigation (Гардероб, Конструктор, Рекомендации).
+```bash
+npm run server
+```
 
-### AddItemForm
-Компонент для загрузки фото (камера/галерея) и выбора категории.
+or
 
-### getSmartRecommendation
-Функция-заглушка, имитирующая AI-советника. Принимает объект погоды и массив вещей, возвращает подходящий комплект.
+```bash
+npm run server:dev
+```
 
-## Разрешения
+Backend default URL: `http://localhost:3000`
 
-Приложение запрашивает разрешения на:
-- Камеру (для фотографирования вещей)
-- Галерею (для выбора фото)
+Health check: `http://localhost:3000/health`
 
-## Примечания
+## Backend Setup (MongoDB)
 
-- Все данные хранятся локально на устройстве
-- AI-рекомендации - это заглушка с логикой на основе температуры
-- Для продакшена потребуется интеграция с реальным AI API
+1. Create `server/.env`.
+2. Add environment variables:
+
+```env
+MONGODB_URI=your_mongodb_connection_string
+PORT=3000
+NODE_ENV=development
+```
+
+If `MONGODB_URI` is missing, the backend will not start.
+
+## API Notes
+
+Main API routes are exposed under:
+
+- `/api/wardrobe`
+- `/api/outfits`
+
+The frontend API base URL is configured in `src/services/config.ts`.
+
+## Localization
+
+Translation files are stored in:
+
+- `src/i18n/en.json`
+- `src/i18n/ru.json`
+
+Language preference is saved locally via AsyncStorage.
+
+## Additional Documentation
+
+- `INSTALL.md` — setup and launch guide
+- `DATABASE_SETUP.md` — MongoDB and backend integration guide
+- `src/i18n/INTEGRATION_GUIDE.md` — i18n integration notes
 

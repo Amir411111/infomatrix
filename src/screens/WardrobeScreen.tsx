@@ -34,6 +34,12 @@ export const WardrobeScreen: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isPhotoUpdating, setIsPhotoUpdating] = useState(false);
 
+  const getItemKey = (item: ClothingItem, index?: number) => {
+    if (item._id) return item._id;
+    if (item.id) return item.id;
+    return `${item.name || 'item'}-${item.category}-${item.createdAt || index || 0}-${index || 0}`;
+  };
+
   useEffect(() => {
     loadItems();
   }, []);
@@ -316,7 +322,7 @@ export const WardrobeScreen: React.FC = () => {
       <FlatList
         data={filteredItems}
         renderItem={renderItem}
-        keyExtractor={(item) => item._id || item.id || Math.random().toString()}
+        keyExtractor={(item, index) => getItemKey(item, index)}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
@@ -349,6 +355,7 @@ export const WardrobeScreen: React.FC = () => {
       {selectedItem && (
         <View style={styles.detailsOverlay} onTouchEnd={closeDetailsModal}>
           <View
+            key={getItemKey(selectedItem)}
             style={styles.detailsContent}
             onStartShouldSetResponder={() => true}
             onTouchEnd={(e) => e.stopPropagation()}

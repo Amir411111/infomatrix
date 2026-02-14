@@ -27,7 +27,7 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 export const WardrobeScreen: React.FC = () => {
   const { t } = useTranslation();
-  const { items, loadItems, deleteItem, updateItem, isLoading, clearLocalCache } = useWardrobeStore();
+  const { items, loadItems, deleteItem, updateItem, isLoading } = useWardrobeStore();
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ClothingItem | null>(null);
   const [isEditingFull, setIsEditingFull] = useState(false);
@@ -185,30 +185,6 @@ export const WardrobeScreen: React.FC = () => {
     }
   };
 
-  // Очистка локального кэша
-  const handleClearCache = () => {
-    Alert.alert(
-      t('wardrobe.clearCacheTitle'),
-      t('wardrobe.clearCacheText'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.clear'),
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await clearLocalCache();
-              Alert.alert(t('common.success'), t('wardrobe.cacheCleared'));
-              loadItems();
-            } catch {
-              Alert.alert(t('common.error'), t('wardrobe.cacheClearFailed'));
-            }
-          },
-        },
-      ]
-    );
-  };
-
   // Подтверждение удаления вещи
   const handleDelete = (item: ClothingItem) => {
     const itemId = item._id || item.id;
@@ -282,9 +258,6 @@ export const WardrobeScreen: React.FC = () => {
           <Text style={styles.title}>{t('wardrobe.title')}</Text>
           <View style={styles.headerActions}>
             <LanguageSwitcher />
-            <TouchableOpacity onPress={handleClearCache} style={styles.clearCacheButton}>
-              <Text style={styles.clearCacheButtonText}>🗑️ {t('wardrobe.clearCacheShort')}</Text>
-            </TouchableOpacity>
           </View>
         </View>
         <Text style={styles.subtitle}>
@@ -616,16 +589,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   title: { fontSize: 30, fontWeight: '800', color: '#0f172a', flexShrink: 1, maxWidth: '100%' },
-  clearCacheButton: {
-    backgroundColor: '#eef2ff',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#c7d2fe',
-    maxWidth: 130,
-  },
-  clearCacheButtonText: { fontSize: 12, fontWeight: '700', color: '#4338ca' },
   subtitle: { color: '#64748b', marginTop: 8, fontSize: 14 },
   listContent: { padding: 16 },
   itemContainer: {

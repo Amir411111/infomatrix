@@ -1,10 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   Image,
-  Alert,
   ActivityIndicator,
   StyleSheet,
   TextInput,
@@ -16,9 +15,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { useWardrobeStore } from '../store/wardrobeStore';
 import { ClothingCategory } from '../types';
 import * as FileSystem from 'expo-file-system';
+import { InAppConfirmDialog } from './InAppConfirmDialog';
+import { InAppNotice } from './InAppNotice';
 
 interface AddItemFormProps {
-  onClose: () => void;
+  onClose: (isSaved?: boolean) => void;
 }
 
 // Предустановленные материалы
@@ -48,17 +49,46 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onClose }) => {
   const [materialDropdownOpen, setMaterialDropdownOpen] = useState(false);
   const [notes, setNotes] = useState('');
   const [season, setSeason] = useState<string[]>(['spring', 'summer', 'autumn', 'winter']);
+  const [isWebCameraConfirmVisible, setIsWebCameraConfirmVisible] = useState(false);
+  const [notice, setNotice] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const webCameraStreamRef = useRef<MediaStream | null>(null);
 
   const addItem = useWardrobeStore(state => state.addItem);
+
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 2500);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
+  useEffect(() => {
+    return () => {
+      if (webCameraStreamRef.current) {
+        webCameraStreamRef.current.getTracks().forEach(track => track.stop());
+        webCameraStreamRef.current = null;
+      }
+    };
+  }, []);
+
+  const showNotice = (message: string, type: 'success' | 'error' = 'error') => {
+    setNotice({ message, type });
+  };
+
+  const stopWebCameraStream = () => {
+    if (webCameraStreamRef.current) {
+      webCameraStreamRef.current.getTracks().forEach(track => track.stop());
+      webCameraStreamRef.current = null;
+    }
+  };
 
   /** Выбор фото: камера */
   const handleTakePhoto = async () => {
     if (Platform.OS === 'web') return accessWebCamera();
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') return Alert.alert(t('common.error'), t('addItem.cameraPermission'));
+    if (status !== 'granted') return showNotice(t('addItem.cameraPermission'));
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -71,7 +101,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onClose }) => {
   /** Выбор фото: галерея */
   const handlePickFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') return Alert.alert(t('common.error'), t('addItem.galleryPermission'));
+    if (status !== 'granted') return showNotice(t('addItem.galleryPermission'));
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -85,18 +115,17 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onClose }) => {
   const accessWebCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 1280, height: 720 } });
+      webCameraStreamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
-        const confirmed = window.confirm(t('addItem.webCameraConfirm'));
-        if (confirmed) captureWebCameraPhoto(stream);
-        else stream.getTracks().forEach(track => track.stop());
       }
+      setIsWebCameraConfirmVisible(true);
     } catch (error: any) {
       const msg = error.name === 'NotAllowedError' ? t('addItem.cameraDenied') :
                   error.name === 'NotFoundError' ? t('addItem.cameraNotFound') :
                   t('addItem.cameraError') + ': ' + error.message;
-      Alert.alert(t('common.error'), msg);
+      showNotice(msg);
     }
   };
 
@@ -109,12 +138,25 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onClose }) => {
       }
     }
     stream.getTracks().forEach(track => track.stop());
+    webCameraStreamRef.current = null;
+  };
+
+  const handleConfirmWebCamera = () => {
+    if (webCameraStreamRef.current) {
+      captureWebCameraPhoto(webCameraStreamRef.current);
+    }
+    setIsWebCameraConfirmVisible(false);
+  };
+
+  const handleCancelWebCamera = () => {
+    stopWebCameraStream();
+    setIsWebCameraConfirmVisible(false);
   };
 
   /** Сохраняем вещь */
   const handleSave = async () => {
-    if (!imageUri) return Alert.alert(t('common.error'), t('addItem.validation.errorSelectPhoto'));
-    if (!name.trim()) return Alert.alert(t('common.error'), t('addItem.validation.errorEmptyName'));
+    if (!imageUri) return showNotice(t('addItem.validation.errorSelectPhoto'));
+    if (!name.trim()) return showNotice(t('addItem.validation.errorEmptyName'));
     setIsLoading(true);
 
     try {
@@ -144,11 +186,10 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onClose }) => {
       };
 
       await addItem(itemData);
-      if (Platform.OS === 'web') { window.alert(t('addItem.success')); onClose(); }
-      else Alert.alert(t('common.success'), t('addItem.success'), [{ text: 'OK', onPress: onClose }]);
+      onClose(true);
     } catch (err) {
       console.error(err);
-      Alert.alert(t('common.error'), t('addItem.validation.errorSaveItem'));
+      showNotice(t('addItem.validation.errorSaveItem'));
     } finally {
       setIsLoading(false);
     }
@@ -156,6 +197,8 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onClose }) => {
 
   return (
     <>
+      {notice && <InAppNotice message={notice.message} type={notice.type} />}
+
       {Platform.OS === 'web' && (
         <>
           <video ref={videoRef as any} style={{ display: 'none' }} width="1280" height="720" />
@@ -257,7 +300,7 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onClose }) => {
 
         {/* Кнопки */}
         <View style={styles.actionButtons}>
-          <TouchableOpacity style={[styles.actionButton, styles.cancelButton]} onPress={onClose} disabled={isLoading}>
+          <TouchableOpacity style={[styles.actionButton, styles.cancelButton]} onPress={() => onClose()} disabled={isLoading}>
             <Text style={styles.cancelButtonText}>{t('addItem.cancel')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.actionButton, styles.saveButton]} onPress={handleSave} disabled={isLoading}>
@@ -265,6 +308,16 @@ export const AddItemForm: React.FC<AddItemFormProps> = ({ onClose }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <InAppConfirmDialog
+        visible={isWebCameraConfirmVisible}
+        title={t('addItem.camera')}
+        message={t('addItem.webCameraConfirm')}
+        confirmText={t('common.confirm', 'Confirm')}
+        cancelText={t('common.cancel')}
+        onConfirm={handleConfirmWebCamera}
+        onCancel={handleCancelWebCamera}
+      />
     </>
   );
 };

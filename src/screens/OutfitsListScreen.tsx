@@ -8,7 +8,6 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  Alert,
   StyleSheet,
   Platform,
   ActivityIndicator,
@@ -19,6 +18,8 @@ import { useOutfitStore } from '../store/outfitStore';
 import { Outfit } from '../types';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { InAppConfirmDialog } from '../components/InAppConfirmDialog';
+import { InAppNotice } from '../components/InAppNotice';
 
 export const OutfitsListScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -30,10 +31,22 @@ export const OutfitsListScreen: React.FC = () => {
   const [editName, setEditName] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editStyle, setEditStyle] = useState<string>('casual');
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
+  const [notice, setNotice] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     loadOutfits();
   }, []);
+
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 2500);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
+  const showNotice = (message: string, type: 'success' | 'error' = 'error') => {
+    setNotice({ message, type });
+  };
 
   const filteredOutfits = outfits.filter((outfit) => {
     if (selectedFilter === 'favorites') return outfit.isFavorite;
@@ -42,19 +55,33 @@ export const OutfitsListScreen: React.FC = () => {
   });
 
   const handleDelete = (id: string, name: string) => {
-    if (Platform.OS === 'web') {
-      const ok = window.confirm(`${t('outfits.deleteConfirmTitle')} "${name}"?`);
-      if (ok) deleteOutfit(id);
-    } else {
-      Alert.alert(
-        t('outfits.deleteConfirmTitle'),
-        `${t('outfits.deleteConfirmMessage')} "${name}"?`,
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-          { text: t('outfits.deleteButton'), style: 'destructive', onPress: () => deleteOutfit(id) },
-        ]
+    setPendingDelete({ id, name });
+  };
+
+  const handleToggleFavorite = async (outfit: Outfit) => {
+    if (!outfit._id) return;
+
+    try {
+      const willBeFavorite = !outfit.isFavorite;
+      await toggleFavorite(outfit._id);
+      showNotice(
+        willBeFavorite ? t('outfits.favoriteAdded') : t('outfits.favoriteRemoved'),
+        'success'
       );
+    } catch {
+      showNotice(t('common.error'));
     }
+  };
+
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    deleteOutfit(pendingDelete.id);
+    setPendingDelete(null);
+    showNotice(t('common.deleted'), 'success');
+  };
+
+  const cancelDelete = () => {
+    setPendingDelete(null);
   };
 
   const openOutfitDetails = (outfit: Outfit) => {
@@ -68,7 +95,7 @@ export const OutfitsListScreen: React.FC = () => {
   const handleSaveOutfitEdit = async () => {
     if (!selectedOutfit?._id) return;
     if (!editName.trim()) {
-      Alert.alert(t('common.error'), t('builder.outfitName'));
+      showNotice(t('builder.outfitName'));
       return;
     }
 
@@ -80,9 +107,9 @@ export const OutfitsListScreen: React.FC = () => {
       });
       setSelectedOutfit(updated as unknown as Outfit);
       setIsEditingOutfit(false);
-      Alert.alert(t('common.success'), t('common.success'));
+      showNotice(t('common.updated'), 'success');
     } catch {
-      Alert.alert(t('common.error'), t('builder.errorSaving'));
+      showNotice(t('builder.errorSaving'));
     }
   };
 
@@ -143,7 +170,7 @@ export const OutfitsListScreen: React.FC = () => {
 
       <View style={styles.outfitActions}>
         <TouchableOpacity
-          onPress={() => outfit._id && toggleFavorite(outfit._id)}
+          onPress={() => handleToggleFavorite(outfit)}
           style={[styles.actionButton, outfit.isFavorite && styles.actionButtonFavorite]}
         >
           <Text style={[styles.actionButtonText, outfit.isFavorite && styles.actionButtonTextFavorite]}>
@@ -171,6 +198,8 @@ export const OutfitsListScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      {notice && <InAppNotice message={notice.message} type={notice.type} />}
+
       {/* Заголовок */}
       <View style={styles.header}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -326,6 +355,21 @@ export const OutfitsListScreen: React.FC = () => {
           </View>
         </Modal>
       )}
+
+      <InAppConfirmDialog
+        visible={!!pendingDelete}
+        title={t('outfits.deleteConfirmTitle')}
+        message={
+          pendingDelete
+            ? `${t('outfits.deleteConfirmMessage')} "${pendingDelete.name}"?`
+            : ''
+        }
+        confirmText={t('outfits.deleteButton')}
+        cancelText={t('common.cancel')}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        destructive
+      />
     </View>
   );
 };

@@ -67,6 +67,7 @@
   "clearMessage": "All selected items will be reset",
   "clearTitle": "Clear Outfit",
 
+  "outfitSaved": "Outfit saved",
   "errorSaving": "Failed to save outfit",
   "noItemsInCategory": "No items in category",
 
@@ -127,7 +128,9 @@
     "noOutfits": "You don't have any saved outfits yet",
     "noOutfitsFilter": "No outfits match this filter",
     "createSubtext": "Create outfits in the builder and save them!",
-    "favorites": "Favorites"
+    "favorites": "Favorites",
+    "favoriteAdded": "Added to favorites",
+    "favoriteRemoved": "Removed from favorites"
   },
 
   "addItem": {
@@ -178,6 +181,10 @@
     "loading": "Loading...",
     "error": "Something went wrong",
     "success": "Success",
+    "saved": "Saved successfully",
+    "updated": "Updated successfully",
+    "deleted": "Deleted successfully",
+    "required": "is required",
     "confirm": "Confirm",
 
     "season": "Season",

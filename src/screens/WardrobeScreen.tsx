@@ -8,7 +8,6 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
-  Alert,
   RefreshControl,
   Platform,
   StyleSheet,
@@ -24,6 +23,8 @@ import { useWardrobeStore } from '../store/wardrobeStore';
 import { ClothingItem } from '../types';
 import { AddItemForm } from '../components/AddItemForm';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { InAppConfirmDialog } from '../components/InAppConfirmDialog';
+import { InAppNotice } from '../components/InAppNotice';
 
 export const WardrobeScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -34,6 +35,8 @@ export const WardrobeScreen: React.FC = () => {
   const [editFormData, setEditFormData] = useState<Partial<ClothingItem>>({});
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isPhotoUpdating, setIsPhotoUpdating] = useState(false);
+  const [pendingDeleteItem, setPendingDeleteItem] = useState<ClothingItem | null>(null);
+  const [notice, setNotice] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const getItemKey = (item: ClothingItem, index?: number) => {
     if (item._id) return item._id;
@@ -45,6 +48,16 @@ export const WardrobeScreen: React.FC = () => {
     loadItems();
   }, []);
 
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 2500);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
+  const showNotice = (message: string, type: 'success' | 'error' = 'error') => {
+    setNotice({ message, type });
+  };
+
   // Фильтрованный список вещей по категории
   const filteredItems = selectedCategory 
     ? items.filter(item => item.category === selectedCategory)
@@ -55,6 +68,7 @@ export const WardrobeScreen: React.FC = () => {
     setIsEditingFull(false);
     setEditFormData({});
     setIsPhotoUpdating(false);
+    setPendingDeleteItem(null);
   };
 
   const openDetailsModal = (item: ClothingItem) => {
@@ -96,13 +110,13 @@ export const WardrobeScreen: React.FC = () => {
       if (source === 'camera') {
         const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
         if (cameraPermission.status !== 'granted') {
-          Alert.alert(t('common.error'), t('addItem.validation.errorOpenCamera'));
+          showNotice(t('addItem.validation.errorOpenCamera'));
           return;
         }
       } else {
         const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (mediaPermission.status !== 'granted') {
-          Alert.alert(t('common.error'), t('addItem.validation.errorOpenGallery'));
+          showNotice(t('addItem.validation.errorOpenGallery'));
           return;
         }
       }
@@ -151,7 +165,7 @@ export const WardrobeScreen: React.FC = () => {
         imageBase64,
       }));
     } catch (error) {
-      Alert.alert(t('common.error'), t('addItem.validation.unknownError'));
+      showNotice(t('addItem.validation.unknownError'));
     } finally {
       setIsPhotoUpdating(false);
     }
@@ -176,53 +190,36 @@ export const WardrobeScreen: React.FC = () => {
 
       await updateItem(itemId, updates);
       setIsEditingFull(false);
-      Alert.alert(t('common.success'), t('wardrobe.updated', 'Item updated'));
+      showNotice(t('wardrobe.updated', 'Item updated'), 'success');
 
       setSelectedItem((prev) => (prev ? { ...prev, ...updates } : prev));
       loadItems();
     } catch (error) {
-      Alert.alert(t('common.error'), t('wardrobe.updateFailed', 'Failed to update item'));
+      showNotice(t('wardrobe.updateFailed', 'Failed to update item'));
     }
   };
 
   // Подтверждение удаления вещи
   const handleDelete = (item: ClothingItem) => {
-    const itemId = item._id || item.id;
-    
-    if (Platform.OS === 'web') {
-      const ok = window.confirm(
-        t('wardrobe.deleteConfirmWeb', {
-          name: item.name,
-          category: t(`wardrobe.category.${item.category}`) || item.category,
-        })
-      );
-      if (ok && itemId) {
-        deleteItem(itemId);
-        closeDetailsModal();
-      }
-      return;
-    }
+    setPendingDeleteItem(item);
+  };
 
-    Alert.alert(
-      t('wardrobe.deleteConfirmTitle', 'Delete item?'),
-      t('wardrobe.deleteConfirmText', {
-        name: item.name,
-        category: t(`wardrobe.category.${item.category}`) || item.category,
-      }),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.delete'),
-          style: 'destructive',
-          onPress: () => {
-            if (itemId) {
-              deleteItem(itemId);
-              closeDetailsModal();
-            }
-          },
-        },
-      ]
-    );
+  const confirmDelete = () => {
+    if (!pendingDeleteItem) return;
+
+    const itemId = pendingDeleteItem._id || pendingDeleteItem.id;
+    if (itemId) {
+      deleteItem(itemId);
+      showNotice(t('common.deleted'), 'success');
+      closeDetailsModal();
+    } else {
+      showNotice(t('common.error'));
+      setPendingDeleteItem(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setPendingDeleteItem(null);
   };
 
   // Рендер одной вещи
@@ -320,7 +317,15 @@ export const WardrobeScreen: React.FC = () => {
             onStartShouldSetResponder={() => true}
             onTouchEnd={(e) => e.stopPropagation()}
           >
-            <AddItemForm onClose={() => setShowAddForm(false)} />
+            <AddItemForm
+              onClose={(isSaved) => {
+                setShowAddForm(false);
+                if (isSaved) {
+                  showNotice(t('common.saved'), 'success');
+                  loadItems();
+                }
+              }}
+            />
           </View>
         </View>
       )}
@@ -550,6 +555,27 @@ export const WardrobeScreen: React.FC = () => {
           </View>
         </View>
       )}
+
+      {notice && <InAppNotice message={notice.message} type={notice.type} />}
+
+      <InAppConfirmDialog
+        visible={!!pendingDeleteItem}
+        title={t('wardrobe.deleteConfirmTitle', 'Delete item?')}
+        message={
+          pendingDeleteItem
+            ? t('wardrobe.deleteConfirmText', {
+                name: pendingDeleteItem.name,
+                category:
+                  t(`wardrobe.category.${pendingDeleteItem.category}`) || pendingDeleteItem.category,
+              })
+            : ''
+        }
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        destructive
+      />
     </SafeAreaView>
   );
 };

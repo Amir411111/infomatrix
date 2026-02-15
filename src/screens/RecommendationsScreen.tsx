@@ -10,7 +10,6 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
-  Alert,
   StyleSheet,
   Platform,
 } from 'react-native';
@@ -21,6 +20,7 @@ import * as Location from 'expo-location';
 import { getWeatherByLocation } from '../services/weatherService';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { InAppNotice } from '../components/InAppNotice';
 
 export const RecommendationsScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -31,6 +31,17 @@ export const RecommendationsScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [isWeatherLoading, setIsWeatherLoading] = useState(false);
+  const [notice, setNotice] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 2500);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
+  const showNotice = (message: string, type: 'success' | 'error' = 'error') => {
+    setNotice({ message, type });
+  };
 
   useEffect(() => {
     (async () => {
@@ -89,12 +100,12 @@ export const RecommendationsScreen: React.FC = () => {
     const temp = parseFloat(temperature);
 
     if (isNaN(temp)) {
-      Alert.alert('Ошибка', 'Введите корректную температуру');
+      showNotice('Введите корректную температуру');
       return;
     }
 
     if (items.length === 0) {
-      Alert.alert(t('common.error'), t('recommendations.errorAddItems'));
+      showNotice(t('recommendations.errorAddItems'));
       return;
     }
 
@@ -108,7 +119,7 @@ export const RecommendationsScreen: React.FC = () => {
       const result = await getSmartRecommendation(weather, items);
       setRecommendation(result);
     } catch (error) {
-      Alert.alert(t('common.error'), t('recommendations.errorGetting'));
+      showNotice(t('recommendations.errorGetting'));
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -125,6 +136,8 @@ export const RecommendationsScreen: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
+      {notice && <InAppNotice message={notice.message} type={notice.type} />}
+
       {/* Заголовок */}
       <View style={styles.header}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>

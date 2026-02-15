@@ -1,14 +1,13 @@
 /**
  * Экран конструктора луков - выбор вещей из разных категорий
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   Image,
   TouchableOpacity,
-  Alert,
   StyleSheet,
   Platform,
   TextInput,
@@ -19,6 +18,8 @@ import { useWardrobeStore } from '../store/wardrobeStore';
 import { useOutfitStore } from '../store/outfitStore';
 import { ClothingItem, ClothingCategory, Outfit } from '../types';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { InAppConfirmDialog } from '../components/InAppConfirmDialog';
+import { InAppNotice } from '../components/InAppNotice';
 
 export const OutfitBuilderScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -33,10 +34,22 @@ export const OutfitBuilderScreen: React.FC = () => {
   const [outfitDescription, setOutfitDescription] = useState('');
   const [outfitStyle, setOutfitStyle] = useState('casual');
   const [outfitCategory, setOutfitCategory] = useState('casual');
+  const [confirmClearVisible, setConfirmClearVisible] = useState(false);
+  const [notice, setNotice] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  useEffect(() => {
+    if (!notice) return;
+    const timer = setTimeout(() => setNotice(null), 2500);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
+  const showNotice = (message: string, type: 'success' | 'error' = 'error') => {
+    setNotice({ message, type });
+  };
 
   // Уникальные материалы
   const uniqueMaterials = Array.from(
-    new Set(items.map(item => item.material).filter(m => m && m !== 'not specified'))
+    new Set(items.map(item => item.material).filter((m): m is string => !!m && m !== 'not specified'))
   ).sort();
 
   // Фильтрация вещей
@@ -63,20 +76,21 @@ export const OutfitBuilderScreen: React.FC = () => {
   };
 
   const clearOutfit = () => {
-    if (Platform.OS === 'web') {
-      const ok = window.confirm(`${t('builder.clearOutfit')}\n\n${t('builder.clearMessage')}`);
-      if (ok) setOutfit({});
-    } else {
-      Alert.alert(t('builder.clearOutfit'), t('builder.clearMessage'), [
-        { text: t('common.cancel'), style: 'cancel' },
-        { text: t('builder.clearTitle'), style: 'destructive', onPress: () => setOutfit({}) },
-      ]);
-    }
+    setConfirmClearVisible(true);
+  };
+
+  const confirmClearOutfit = () => {
+    setOutfit({});
+    setConfirmClearVisible(false);
+  };
+
+  const cancelClearOutfit = () => {
+    setConfirmClearVisible(false);
   };
 
   const handleSaveOutfit = async () => {
     if (!outfitName.trim()) {
-      Alert.alert(t('common.error'), t('builder.outfitName') + ' ' + t('common.required'));
+      showNotice(t('builder.outfitName') + ' ' + t('common.required'));
       return;
     }
 
@@ -97,21 +111,15 @@ export const OutfitBuilderScreen: React.FC = () => {
         userId: 'default',
       });
 
-      Alert.alert(t('common.success'), t('builder.outfitSaved'), [
-        {
-          text: t('common.ok'),
-          onPress: () => {
-            setSaveModalVisible(false);
-            setOutfit({});
-            setOutfitName('');
-            setOutfitDescription('');
-            setOutfitStyle('casual');
-            setOutfitCategory('casual');
-          },
-        },
-      ]);
+      setSaveModalVisible(false);
+      setOutfit({});
+      setOutfitName('');
+      setOutfitDescription('');
+      setOutfitStyle('casual');
+      setOutfitCategory('casual');
+      showNotice(t('builder.outfitSaved'), 'success');
     } catch (error) {
-      Alert.alert(t('common.error'), t('builder.errorSaving'));
+      showNotice(t('builder.errorSaving'));
     }
   };
 
@@ -162,6 +170,8 @@ export const OutfitBuilderScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      {notice && <InAppNotice message={notice.message} type={notice.type} />}
+
       {/* Заголовок */}
       <View style={styles.header}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -177,8 +187,11 @@ export const OutfitBuilderScreen: React.FC = () => {
           <View style={styles.outfitPreview}>
             <Text style={styles.outfitPreviewTitle}>{t('builder.yourOutfit')}:</Text>
             <View style={styles.outfitImages}>
-              {['top', 'bottom', 'shoes'].map(category => {
-                const item = outfit[category as ClothingCategory];
+              {[
+                { category: 'top', item: outfit.top },
+                { category: 'bottom', item: outfit.bottom },
+                { category: 'shoes', item: outfit.shoes },
+              ].map(({ category, item }) => {
                 if (!item) return null;
                 return (
                   <View key={category} style={styles.outfitImageContainer}>
@@ -319,6 +332,17 @@ export const OutfitBuilderScreen: React.FC = () => {
           </View>
         </View>
       )}
+
+      <InAppConfirmDialog
+        visible={confirmClearVisible}
+        title={t('builder.clearOutfit')}
+        message={t('builder.clearMessage')}
+        confirmText={t('builder.clearTitle')}
+        cancelText={t('common.cancel')}
+        onConfirm={confirmClearOutfit}
+        onCancel={cancelClearOutfit}
+        destructive
+      />
     </View>
   );
 };
@@ -402,18 +426,6 @@ const styles = StyleSheet.create({
   },
   completeBadgeText: {
     color: '#065f46',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  clearButton: {
-    marginTop: 12,
-    backgroundColor: '#ef4444',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  clearButtonText: {
-    color: '#ffffff',
     textAlign: 'center',
     fontWeight: '600',
   },
